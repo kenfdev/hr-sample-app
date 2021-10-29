@@ -8,10 +8,25 @@ export class MemberOrm {
   id!: string;
 
   @Column()
+  avatar!: string;
+
+  @Column()
   firstName!: string;
 
   @Column()
   lastName!: string;
+
+  @Column()
+  joinedAt!: Date;
+
+  @Column()
+  phoneNumber!: string;
+
+  @Column()
+  email!: string;
+
+  @Column()
+  pr!: string;
 
   @Column()
   age!: number;
@@ -28,8 +43,13 @@ export class MemberOrm {
   static fromMember(member: Member) {
     const m = new MemberOrm();
     m.id = member.id;
+    m.avatar = member.avatar;
     m.firstName = member.firstName;
     m.lastName = member.lastName;
+    m.joinedAt = member.joinedAt;
+    m.phoneNumber = member.phoneNumber;
+    m.email = member.email;
+    m.pr = member.pr;
     m.age = member.age;
     m.salary = member.salary;
     m.departmentId = member.department.id;
@@ -40,11 +60,16 @@ export class MemberOrm {
   toMember() {
     const m = new Member(
       this.id,
+      this.avatar,
       this.firstName,
       this.lastName,
       this.age,
       this.salary,
-      this.department.toDepartment()
+      this.department.toDepartment(),
+      this.joinedAt,
+      this.phoneNumber,
+      this.email,
+      this.pr
     );
     return m;
   }

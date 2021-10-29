@@ -1,11 +1,11 @@
 import { Authorizer } from '@/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
-import { AuthorizedMember, Member } from '../shared/member';
+import { DisplayableMember, Member } from '../shared/member';
 import { ListAllMembersRepository } from './listAllMembersRepository';
 
 export type ListAllMembersRequest = {};
 export type ListAllMembersResponse = {
-  members: AuthorizedMember[];
+  members: DisplayableMember[];
 };
 
 export class ListAllMembersService {
@@ -19,7 +19,7 @@ export class ListAllMembersService {
       this.authorizer.currentUser
     );
 
-    const authorizedMembers: AuthorizedMember[] = [];
+    const authorizedMembers: DisplayableMember[] = [];
     for (const member of members) {
       const authorizedFields =
         await this.authorizer.authorizedFieldsForUser<Member>(
@@ -35,6 +35,10 @@ export class ListAllMembersService {
       );
       if (allowedActions.has(MEMBER_ACTIONS.UPDATE)) {
         authorizedMember.editable = true;
+      }
+
+      if (member.id === this.authorizer.currentUser.memberInfo.id) {
+        authorizedMember.isLoggedInUser = true;
       }
 
       authorizedMembers.push(authorizedMember);

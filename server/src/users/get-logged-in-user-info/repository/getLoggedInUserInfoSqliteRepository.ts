@@ -4,8 +4,10 @@ import { UserMenuItemOrm } from '@/users/shared/typeorm/userMenuItemOrm';
 import { UserOrm } from '@/users/shared/typeorm/userOrm';
 import { User } from '@/users/shared/user';
 import { Connection } from 'typeorm';
-import { GetLoggedInUserInfoRepository } from '../getLoggedInUserInfoRepository';
-import { GetLoggedInUserInfoResponse } from '../getLoggedInUserInfoService';
+import {
+  GetLoggedInUserInfoRepository,
+  UserInfo,
+} from '../getLoggedInUserInfoRepository';
 
 export class GetLoggedInUserInfoSqliteRepository
   implements GetLoggedInUserInfoRepository
@@ -15,7 +17,7 @@ export class GetLoggedInUserInfoSqliteRepository
     private readonly conn: Connection
   ) {}
 
-  async query(user: User): Promise<GetLoggedInUserInfoResponse> {
+  async queryUserInfo(user: User): Promise<UserInfo> {
     const userOrm = UserOrm.fromUser(user);
 
     const query = await this.dataFilter.authorizedQuery<UserMenuItemOrm>(

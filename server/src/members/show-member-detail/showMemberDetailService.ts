@@ -1,13 +1,14 @@
 import { Authorizer } from '@/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
-import { AuthorizedMember, Member } from '../shared/member';
+import { DisplayableMember, Member } from '../shared/member';
 import { ShowMemberDetailRepository } from './showMemberDetailRepository';
 
 export type ShowMemberDetailRequest = {
   memberId: string;
 };
 export type ShowMemberDetailResponse = {
-  member: AuthorizedMember;
+  editableFields: string[];
+  member: DisplayableMember;
 };
 
 export class ShowMemberDetailService {
@@ -35,11 +36,25 @@ export class ShowMemberDetailService {
     const allowedActions = await this.authorizer.authorizedActionsForUser(
       member
     );
+
+    let authorizedFieldsToUpdate: string[] = [];
     if (allowedActions.has(MEMBER_ACTIONS.UPDATE)) {
       authorizedMember.editable = true;
+
+      const fields = await this.authorizer.authorizedFieldsForUser<Member>(
+        MEMBER_ACTIONS.UPDATE,
+        member
+      );
+      // FIXME: exclude readonly fields such as id, joinedAt
+      authorizedFieldsToUpdate = Array.from(fields.values()).map((f) => f);
+    }
+
+    if (member.id === this.authorizer.currentUser.memberInfo.id) {
+      authorizedMember.isLoggedInUser = true;
     }
 
     return {
+      editableFields: authorizedFieldsToUpdate,
       member: authorizedMember,
     };
   }

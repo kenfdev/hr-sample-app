@@ -1,7 +1,7 @@
 import { Authorizer } from '@/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
 import { AppError, ErrorCodes } from '@/shared/appError';
-import { AuthorizedMember, Member } from '../shared/member';
+import { DisplayableMember, Member } from '../shared/member';
 import {
   EditMemberDetailRepository,
   UpdatePayload,
@@ -42,6 +42,12 @@ export class EditMemberDetailService {
       authorizedPayload.firstName = payload.firstName;
     if (authorizedFields.has('lastName') && 'lastName' in payload)
       authorizedPayload.lastName = payload.lastName;
+    if (authorizedFields.has('phoneNumber') && 'phoneNumber' in payload)
+      authorizedPayload.phoneNumber = payload.phoneNumber;
+    if (authorizedFields.has('email') && 'email' in payload)
+      authorizedPayload.email = payload.email;
+    if (authorizedFields.has('pr') && 'pr' in payload)
+      authorizedPayload.pr = payload.pr;
     if (authorizedFields.has('age') && 'age' in payload)
       authorizedPayload.age = payload.age;
     if (authorizedFields.has('salary') && 'salary' in payload)

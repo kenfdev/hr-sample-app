@@ -7,6 +7,9 @@ export type UpdatePayload = {
   age?: number;
   salary?: number;
   departmentId?: string;
+  phoneNumber?: string;
+  email?: string;
+  pr?: string;
 };
 
 export interface EditMemberDetailRepository {

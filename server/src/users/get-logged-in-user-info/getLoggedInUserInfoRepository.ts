@@ -1,6 +1,8 @@
 import { User } from '../shared/user';
-import { GetLoggedInUserInfoResponse } from './getLoggedInUserInfoService';
 
+export type UserInfo = {
+  userMenu: { name: string }[];
+};
 export interface GetLoggedInUserInfoRepository {
-  query(user: User): Promise<GetLoggedInUserInfoResponse>;
+  queryUserInfo(user: User): Promise<UserInfo>;
 }

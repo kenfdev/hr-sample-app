@@ -1,9 +1,9 @@
 import { Authorizer } from '@/auth/shared/authorizer';
-import { UserMenuItem } from '../shared/userMenuItem';
 import { GetLoggedInUserInfoRepository } from './getLoggedInUserInfoRepository';
 
 export type GetLoggedInUserInfoRequest = {};
 export type GetLoggedInUserInfoResponse = {
+  username: string;
   userMenu: { name: string }[];
 };
 
@@ -14,7 +14,13 @@ export class GetLoggedInUserInfoService {
   ) {}
 
   async execute(): Promise<GetLoggedInUserInfoResponse> {
-    const result = await this.repository.query(this.authorizer.currentUser);
-    return result;
+    const userInfo = await this.repository.queryUserInfo(
+      this.authorizer.currentUser
+    );
+    this.authorizer.currentUser.username;
+    return {
+      username: this.authorizer.currentUser.username,
+      userMenu: userInfo.userMenu,
+    };
   }
 }
