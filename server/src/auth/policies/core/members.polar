@@ -1,10 +1,6 @@
-has_permission(user: User, "read", member: Member) if
-  user.memberInfo.department.id = member.department.id or
-  user.memberInfo.department.name = "hr";
-
-has_permission(user: User, "update", member: Member) if
-  user.memberInfo.id = member.id or
-  user.memberInfo.department.name = "hr";
+has_role(user: User, "hr_member", _member: Member) if user.memberInfo.department.name = "hr";
+has_role(user: User, "self", member: Member) if user.memberInfo.id = member.id;
+has_role(user: User, "same_department", member: Member) if user.memberInfo.department.id = member.department.id;
 
 allow_field(user: User, "read", member: Member, field) if
   # anyone can read public fields

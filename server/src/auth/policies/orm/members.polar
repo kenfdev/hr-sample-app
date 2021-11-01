@@ -1,7 +1,3 @@
-has_permission(user: User, "read", member: Member) if
-  user.member.department.id = member.departmentId or
-  user.member.department.name = "hr";
-
-has_permission(user: User, "update", member: Member) if
-  user.member.id = member.id or
-  user.member.department.name = "hr";
+has_role(user: User, "hr_member", _member: Member) if user.member.department.name = "hr";
+has_role(user: User, "self", member: Member) if user.member.id = member.id;
+has_role(user: User, "same_department", member: Member) if user.member.department.id = member.department.id;

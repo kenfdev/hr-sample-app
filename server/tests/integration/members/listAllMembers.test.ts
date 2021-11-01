@@ -56,9 +56,10 @@ describe('ListAllMembers', () => {
         loggedInUser = USERS.nonAdminAndEngineer;
         res = await authorizeRequest(
           request(app).get('/members'),
-          USERS.nonAdminAndEngineer.userId
+          loggedInUser.userId
         ).expect(200);
         expect(res.body.members).toBeInstanceOf(Array);
+        expect(res.body.members.length).toBeGreaterThan(1);
       });
 
       it('should return only members of the users department', async () => {
@@ -68,9 +69,9 @@ describe('ListAllMembers', () => {
         }
       });
 
-      it("should omit member's private fields such as salaries except for the logged in user and should not be editable", async () => {
+      it("should omit member's private fields such as salaries except for the logged in user and should not be editable", () => {
         const { members } = res.body;
-        const membersLoggedInUserExcluded = members.find(
+        const membersLoggedInUserExcluded = members.filter(
           (m: any) => m.id !== loggedInUser.memberId
         );
         for (const member of membersLoggedInUserExcluded) {
@@ -97,12 +98,12 @@ describe('ListAllMembers', () => {
         loggedInUser = USERS.nonAdminAndHr;
         res = await authorizeRequest(
           request(app).get('/members'),
-          USERS.nonAdminAndHr.userId
+          loggedInUser.userId
         ).expect(200);
         expect(res.body.members).toBeInstanceOf(Array);
       });
 
-      it('should return all members with all fields present', async () => {
+      it('should return all members with all fields present', () => {
         const { members } = res.body;
         for (const member of members) {
           expect(member.salary).toBeDefined();
