@@ -34,10 +34,5 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Unit Test with coverage
-        uses: mattallty/jest-github-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          test-command: "npm test"
-          working-directory: "server"
+      - name: Unit Test
+        run: npm test
