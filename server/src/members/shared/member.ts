@@ -1,7 +1,8 @@
+import { NonFunctionPropertyNames } from '@/shared/sharedTypes';
 import { Department } from './department';
 
 export class Member {
-  static PUBLIC_FIELDS: string[] = [
+  static PUBLIC_FIELDS: NonFunctionPropertyNames<Member>[] = [
     'id',
     'avatar',
     'firstName',
@@ -12,7 +13,7 @@ export class Member {
     'email',
     'pr',
   ];
-  static PRIVATE_FIELDS: string[] = ['age', 'salary'];
+  static PRIVATE_FIELDS: NonFunctionPropertyNames<Member>[] = ['age', 'salary'];
 
   constructor(
     public id: string,
