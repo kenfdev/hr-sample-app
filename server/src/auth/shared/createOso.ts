@@ -78,6 +78,7 @@ export async function createSqliteDataFilterOso(connection: Connection) {
     fields: {
       id: String,
       name: String,
+      managerMemberId: String,
     },
   });
   osoDataFilter.registerClass(MemberOrm, {

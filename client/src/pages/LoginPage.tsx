@@ -36,6 +36,11 @@ const LoginPage: React.FC<Props> = (props) => {
         description: 'Member of Engineering Department',
         isAdmin: false,
       },
+      {
+        userId: 'cf02fc55-5942-49ee-8193-70b002e92ef8',
+        description: 'Manager of Engineering Department',
+        isAdmin: false,
+      },
     ];
 
     return users.map((u) => (
