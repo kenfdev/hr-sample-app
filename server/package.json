@@ -20,8 +20,7 @@
     "oso": "^0.22.0",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.2",
-    "typeorm": "0.2.38",
-    "yargs": "^17.2.1"
+    "typeorm": "0.2.38"
   },
   "devDependencies": {
     "@tsconfig/node14": "^1.0.1",

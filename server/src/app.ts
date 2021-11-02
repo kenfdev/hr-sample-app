@@ -1,5 +1,5 @@
 import { Authorizer } from '@/auth/shared/authorizer';
-import express, { Application, Router } from 'express';
+import express, { Application } from 'express';
 import { createUsersRouter } from '@/users/usersRouter';
 import { OsoDataFilter } from './auth/shared/repository/osoDataFilter';
 import {
@@ -8,8 +8,6 @@ import {
 } from './auth/shared/createOso';
 
 import 'reflect-metadata';
-// import yargs from 'yargs/yargs';
-// import { hideBin } from 'yargs/helpers';
 import { createConnection } from 'typeorm';
 
 import { AuthorizeSqliteRepository } from './auth/shared/repository/authorizeSqliteRepository';
@@ -51,7 +49,5 @@ async function start() {
     console.log(`App is listening on port ${port} !`);
   });
 }
-
-// const argv = yargs(hideBin(process.argv)).parseSync();
 
 start();

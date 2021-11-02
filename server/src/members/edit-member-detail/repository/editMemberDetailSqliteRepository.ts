@@ -5,7 +5,7 @@ import { MemberOrm } from '@/members/shared/typeorm/memberOrm';
 import { AppError, ErrorCodes } from '@/shared/appError';
 import { UserOrm } from '@/users/shared/typeorm/userOrm';
 import { User } from '@/users/shared/user';
-import { Connection, IsNull, Not, Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import {
   EditMemberDetailRepository,
   UpdatePayload,

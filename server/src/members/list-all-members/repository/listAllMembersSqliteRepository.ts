@@ -4,7 +4,7 @@ import { Member } from '@/members/shared/member';
 import { MemberOrm } from '@/members/shared/typeorm/memberOrm';
 import { UserOrm } from '@/users/shared/typeorm/userOrm';
 import { User } from '@/users/shared/user';
-import { Connection, IsNull, Not, Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { ListAllMembersRepository } from '../listAllMembersRepository';
 
 export class ListAllMembersSqliteRepository
