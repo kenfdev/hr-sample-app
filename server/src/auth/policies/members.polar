@@ -1,5 +1,6 @@
 resource Department {
   permissions = ["read"];
+  roles = ["manager"];
 }
 
 has_permission(_: User, "read", _department: Department);
@@ -16,5 +17,3 @@ resource Member {
   "update" if "hr_member";
 }
 
-has_relation(department: Department, "department", member: Member) if
-  member.department = department;

@@ -17,4 +17,8 @@ export const USERS = {
     userId: '574319c9-7d97-4616-8ae6-ee78377e0cb6',
     memberId: 'abc750b3-3cef-4833-b7f2-24a8910e430d',
   },
+  nonAdminAndEngineerManager: {
+    userId: 'cf02fc55-5942-49ee-8193-70b002e92ef8',
+    memberId: 'dc9b5330-3051-4cec-8c22-6fb95b0591dd',
+  },
 };

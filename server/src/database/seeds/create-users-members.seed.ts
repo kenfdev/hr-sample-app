@@ -36,6 +36,16 @@ export default class CreateUsersAndMembers implements Seeder {
       memberId: engineeringMember.id,
     });
 
+    const engineeringManager = await factory(MemberOrm)().create({
+      id: USERS.nonAdminAndEngineerManager.memberId,
+      departmentId: DEPARTMENT_IDS.engineering,
+    });
+    await factory(UserOrm)().create({
+      id: USERS.nonAdminAndEngineerManager.userId,
+      isAdmin: false,
+      memberId: engineeringManager.id,
+    });
+
     const members = await factory(MemberOrm)().createMany(20);
     for (const member of members) {
       await factory(UserOrm)().create({ memberId: member.id });
