@@ -1,3 +1,4 @@
+[![CI](https://github.com/kenfdev/hr-sample-app/actions/workflows/main.yml/badge.svg)](https://github.com/kenfdev/hr-sample-app/actions/workflows/main.yml)
 # HR sample web application using Oso as AuthZ
 
 A sample web application to show how you can integrate Oso.
