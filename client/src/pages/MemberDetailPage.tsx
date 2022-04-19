@@ -22,7 +22,7 @@ const MemberDetailPage: React.FC = () => {
       setEditableFields(new Set(m.data.editableFields));
       setLoading(false);
     });
-  }, []);
+  }, [memberId]);
 
   if (loading) {
     return <div>Loading...</div>;

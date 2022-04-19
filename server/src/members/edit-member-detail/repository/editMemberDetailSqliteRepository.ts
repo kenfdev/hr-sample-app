@@ -1,11 +1,12 @@
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
+import { MemberOrm } from '@/auth/shared/createOso';
 import { DataFilter } from '@/auth/shared/dataFilter';
+import { Department } from '@/members/shared/department';
 import { Member } from '@/members/shared/member';
-import { MemberOrm } from '@/members/shared/typeorm/memberOrm';
 import { AppError, ErrorCodes } from '@/shared/appError';
 import { UserOrm } from '@/users/shared/typeorm/userOrm';
 import { User } from '@/users/shared/user';
-import { Connection, Repository } from 'typeorm';
+import { PrismaClient } from '@prisma/client';
 import {
   EditMemberDetailRepository,
   UpdatePayload,
@@ -14,9 +15,9 @@ import {
 export class EditMemberDetailSqliteRepository
   implements EditMemberDetailRepository
 {
-  private readonly membersRepository: Repository<MemberOrm>;
-  constructor(private readonly dataFilter: DataFilter, conn: Connection) {
-    this.membersRepository = conn.getRepository(MemberOrm);
+  private readonly prisma: PrismaClient;
+  constructor(private readonly dataFilter: DataFilter, prisma: PrismaClient) {
+    this.prisma = prisma;
   }
 
   async updateMember(
@@ -32,12 +33,15 @@ export class EditMemberDetailSqliteRepository
       MemberOrm
     );
 
-    await this.membersRepository.update({ id: memberId }, payload);
+    await this.prisma.member.update({ where: { id: memberId }, data: payload });
   }
 
   async queryMember(memberId: string): Promise<Member> {
-    const record = await this.membersRepository.findOne(memberId, {
-      relations: ['department'],
+    const record = await this.prisma.member.findUnique({
+      where: { id: memberId },
+      include: {
+        department: true,
+      },
     });
 
     if (!record) {
@@ -47,6 +51,22 @@ export class EditMemberDetailSqliteRepository
       );
     }
 
-    return record.toMember();
+    return new Member(
+      record.id,
+      record.avatar,
+      record.firstName,
+      record.lastName,
+      record.age,
+      record.salary,
+      new Department(
+        record.department.id,
+        record.department.name,
+        record.department.managerMemberId
+      ),
+      record.joinedAt,
+      record.phoneNumber,
+      record.email,
+      record.pr
+    );
   }
 }

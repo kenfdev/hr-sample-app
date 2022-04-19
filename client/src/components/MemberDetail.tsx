@@ -72,7 +72,7 @@ const MemberDetail: React.FC<Props> = ({
               <div className="control">
                 <input
                   className="input"
-                  type="text"
+                  type="number"
                   placeholder="Text input"
                   value={formModel.lastName}
                   onChange={(e: any) =>
@@ -97,7 +97,7 @@ const MemberDetail: React.FC<Props> = ({
                     placeholder="Text input"
                     value={formModel.age}
                     onChange={(e: any) =>
-                      onFormModelChange('age', e.target.value)
+                      onFormModelChange('age', Number(e.target.value))
                     }
                   />
                 </div>

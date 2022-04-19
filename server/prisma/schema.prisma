@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./database_beta.sqlite"
+}
+
+model Member {
+  id           String     @id
+  avatar       String
+  firstName    String
+  lastName     String
+  joinedAt     DateTime
+  phoneNumber  String
+  email        String
+  pr           String
+  age          Int
+  salary       Int
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  User         User?
+}
+
+model Department {
+  id              String   @id
+  name            String
+  managerMemberId String
+  Member          Member[]
+}
+
+model User {
+  id       String  @id
+  username String
+  isAdmin  Boolean
+  memberId String  @unique
+  member   Member  @relation(fields: [memberId], references: [id])
+}
+
+model UserMenuItem {
+  id      String  @id
+  name    String
+  order   Int
+  isAdmin Boolean
+}

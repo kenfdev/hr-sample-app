@@ -3,25 +3,25 @@ import { Authorizer } from '@/auth/shared/authorizer';
 import { createCheckLoggedInMiddleware } from '@/auth/check-logged-in/checkLoggedInMiddleware';
 import { UsersController } from './usersController';
 import { DataFilter } from '@/auth/shared/dataFilter';
-import { Connection } from 'typeorm';
 import { GetLoggedInUserInfoSqliteRepository } from './get-logged-in-user-info/repository/getLoggedInUserInfoSqliteRepository';
 import { GetLoggedInUserInfoService } from './get-logged-in-user-info/getLoggedInUserInfoService';
 import { asyncHandler } from '@/shared/asyncHandler';
+import { PrismaClient } from '@prisma/client';
 
 type Dependencies = {
   dataFilter: DataFilter;
   authorizer: Authorizer;
-  connection: Connection;
+  prisma: PrismaClient;
 };
 
 export function createUsersRouter({
   dataFilter,
   authorizer,
-  connection,
+  prisma,
 }: Dependencies) {
   const getLoggedInUserInfoRepository = new GetLoggedInUserInfoSqliteRepository(
     dataFilter,
-    connection
+    prisma
   );
   const getLoggedInUserInfoService = new GetLoggedInUserInfoService(
     authorizer,

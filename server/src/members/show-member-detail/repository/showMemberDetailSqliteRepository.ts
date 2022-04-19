@@ -1,33 +1,33 @@
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
+import { MemberOrm, UserOrm } from '@/auth/shared/createOso';
 import { DataFilter } from '@/auth/shared/dataFilter';
+import { Department } from '@/members/shared/department';
 import { Member } from '@/members/shared/member';
-import { MemberOrm } from '@/members/shared/typeorm/memberOrm';
 import { AppError, ErrorCodes } from '@/shared/appError';
-import { UserOrm } from '@/users/shared/typeorm/userOrm';
 import { User } from '@/users/shared/user';
-import { Connection, Repository } from 'typeorm';
+import { PrismaClient } from '@prisma/client';
 import { ShowMemberDetailRepository } from '../showMemberDetailRepository';
 
 export class ShowMemberDetailSqliteRepository
   implements ShowMemberDetailRepository
 {
-  private readonly membersRepository: Repository<MemberOrm>;
-  constructor(private readonly dataFilter: DataFilter, conn: Connection) {
-    this.membersRepository = conn.getRepository(MemberOrm);
+  private readonly prisma: PrismaClient;
+  constructor(private readonly dataFilter: DataFilter, prisma: PrismaClient) {
+    this.prisma = prisma;
   }
 
   async queryMember(user: User, memberId: string): Promise<Member> {
-    const userOrm = UserOrm.fromUser(user);
+    const userOrm = UserOrm.fromEntity(user);
 
-    const query = await this.dataFilter.authorizedQuery<MemberOrm>(
+    await this.dataFilter.authorizedQuery<MemberOrm>(
       userOrm,
       MEMBER_ACTIONS.READ,
       MemberOrm
     );
 
-    const record = await this.membersRepository.findOne(memberId, {
-      where: query,
-      relations: ['department'],
+    const record = await this.prisma.member.findUnique({
+      where: { id: memberId },
+      include: { department: true },
     });
 
     if (!record) {
@@ -37,6 +37,22 @@ export class ShowMemberDetailSqliteRepository
       );
     }
 
-    return record.toMember();
+    return new Member(
+      record.id,
+      record.avatar,
+      record.firstName,
+      record.lastName,
+      record.age,
+      record.salary,
+      new Department(
+        record.department.id,
+        record.department.name,
+        record.department.managerMemberId
+      ),
+      record.joinedAt,
+      record.phoneNumber,
+      record.email,
+      record.pr
+    );
   }
 }

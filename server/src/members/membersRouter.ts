@@ -3,7 +3,6 @@ import { Authorizer } from '@/auth/shared/authorizer';
 import { createCheckLoggedInMiddleware } from '@/auth/check-logged-in/checkLoggedInMiddleware';
 import { MembersController } from './membersController';
 import { DataFilter } from '@/auth/shared/dataFilter';
-import { Connection } from 'typeorm';
 import { ListAllMembersSqliteRepository } from './list-all-members/repository/listAllMembersSqliteRepository';
 import { ListAllMembersService } from './list-all-members/listAllMembersService';
 import { ShowMemberDetailSqliteRepository } from './show-member-detail/repository/showMemberDetailSqliteRepository';
@@ -11,21 +10,22 @@ import { ShowMemberDetailService } from './show-member-detail/showMemberDetailSe
 import { EditMemberDetailSqliteRepository } from './edit-member-detail/repository/editMemberDetailSqliteRepository';
 import { EditMemberDetailService } from './edit-member-detail/editMemberDetailService';
 import { asyncHandler } from '@/shared/asyncHandler';
+import { PrismaClient } from '@prisma/client';
 
 type Dependencies = {
   dataFilter: DataFilter;
   authorizer: Authorizer;
-  connection: Connection;
+  prisma: PrismaClient;
 };
 
 export function createMembersRouter({
   dataFilter,
   authorizer,
-  connection,
+  prisma,
 }: Dependencies) {
   const listAllMembersRepository = new ListAllMembersSqliteRepository(
     dataFilter,
-    connection
+    prisma
   );
   const listAllMembersService = new ListAllMembersService(
     authorizer,
@@ -33,7 +33,7 @@ export function createMembersRouter({
   );
   const showMemberDetailRepository = new ShowMemberDetailSqliteRepository(
     dataFilter,
-    connection
+    prisma
   );
   const showMemberDetailService = new ShowMemberDetailService(
     authorizer,
@@ -41,7 +41,7 @@ export function createMembersRouter({
   );
   const editMemberDetailRepository = new EditMemberDetailSqliteRepository(
     dataFilter,
-    connection
+    prisma
   );
   const editMemberDetailService = new EditMemberDetailService(
     authorizer,

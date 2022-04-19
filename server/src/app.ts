@@ -8,33 +8,33 @@ import {
 } from './auth/shared/createOso';
 
 import 'reflect-metadata';
-import { createConnection } from 'typeorm';
 
 import { AuthorizeSqliteRepository } from './auth/shared/repository/authorizeSqliteRepository';
 import { createMembersRouter } from './members/membersRouter';
+import { PrismaClient } from '@prisma/client';
+
+export const prisma = new PrismaClient();
 
 async function start() {
-  const connection = await createConnection();
-
   const oso = await createCoreOso();
-  const authorizeRepository = new AuthorizeSqliteRepository(connection);
+  const authorizeRepository = new AuthorizeSqliteRepository(prisma);
   const authorizer = new Authorizer(authorizeRepository, oso);
 
-  const dataFilterOso = await createSqliteDataFilterOso(connection);
+  const dataFilterOso = await createSqliteDataFilterOso();
   const dataFilter = new OsoDataFilter(dataFilterOso);
 
   // users
   const usersRouter = createUsersRouter({
     dataFilter,
     authorizer,
-    connection,
+    prisma,
   });
 
   // members
   const membersRouter = createMembersRouter({
     dataFilter,
     authorizer,
-    connection,
+    prisma,
   });
 
   // express
@@ -44,7 +44,7 @@ async function start() {
   app.use('/users', usersRouter);
   app.use('/members', membersRouter);
 
-  const port: number = 3001;
+  const port: number = 3031;
   app.listen(port, function () {
     console.log(`App is listening on port ${port} !`);
   });

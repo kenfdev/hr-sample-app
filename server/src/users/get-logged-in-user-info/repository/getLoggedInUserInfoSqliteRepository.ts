@@ -1,9 +1,8 @@
 import { USER_MENU_ITEM_ACTIONS } from '@/auth/shared/constants/actions';
+import { UserMenuItemOrm, UserOrm } from '@/auth/shared/createOso';
 import { DataFilter } from '@/auth/shared/dataFilter';
-import { UserMenuItemOrm } from '@/users/shared/typeorm/userMenuItemOrm';
-import { UserOrm } from '@/users/shared/typeorm/userOrm';
 import { User } from '@/users/shared/user';
-import { Connection } from 'typeorm';
+import { PrismaClient } from '@prisma/client';
 import {
   GetLoggedInUserInfoRepository,
   UserInfo,
@@ -14,21 +13,25 @@ export class GetLoggedInUserInfoSqliteRepository
 {
   constructor(
     private readonly dataFilter: DataFilter,
-    private readonly conn: Connection
+    private readonly prisma: PrismaClient
   ) {}
 
   async queryUserInfo(user: User): Promise<UserInfo> {
-    const userOrm = UserOrm.fromUser(user);
+    const userModel = UserOrm.fromEntity(user);
 
-    const query = await this.dataFilter.authorizedQuery<UserMenuItemOrm>(
-      userOrm,
+    const query = await this.dataFilter.authorizedQuery(
+      userModel,
       USER_MENU_ITEM_ACTIONS.READ,
       UserMenuItemOrm
     );
 
-    const menuItems = await this.conn
-      .getRepository(UserMenuItemOrm)
-      .find({ select: ['name'], where: query, order: { order: 'ASC' } });
+    const menuItems = await this.prisma.userMenuItem.findMany({
+      select: {
+        name: true,
+      },
+      where: query,
+      orderBy: { order: 'asc' },
+    });
 
     return {
       userMenu: menuItems,
