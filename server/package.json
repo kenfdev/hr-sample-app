@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nodemon -r tsconfig-paths/register -e ts,json,polar src/app.ts",
     "test": "jest",
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "codegen": "graphql-codegen --config codegen.yml"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -13,14 +14,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@graphql-tools/graphql-file-loader": "^7.3.10",
+    "@graphql-tools/load": "^7.5.9",
+    "@graphql-yoga/node": "^2.3.0",
     "@prisma/client": "^3.12.0",
     "express": "^4.17.1",
+    "graphql": "^16.3.0",
     "oso": "0.25.0",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.2",
     "typeorm": "0.2.38"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript": "^2.4.8",
+    "@graphql-codegen/typescript-resolvers": "^2.6.1",
     "@tsconfig/node14": "^1.0.1",
     "@types/express": "^4.17.13",
     "@types/faker": "^4.1.11",

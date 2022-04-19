@@ -1,0 +1,67 @@
+type Query {
+  userInfo: UserInfo!
+  listAllMembers: ListAllMembersResponse!
+  showMemberDetail(id: ID!): ShowMemberDetailResponse!
+}
+
+type Mutation {
+  editMemberDetail(input: EditMemberDetailInput!): EditMemberDetailResponse!
+}
+
+input EditMemberDetailInput {
+  id: ID!
+  firstName: String
+  lastName: String
+  age: Int
+  salary: Int
+  departmentId: ID
+  phoneNumber: String
+  email: String
+  pr: String
+}
+
+type EditMemberDetailResponse {
+  result: Boolean!
+}
+
+type ListAllMembersResponse {
+  members: [Member!]!
+}
+
+type ShowMemberDetailResponse {
+  editableFields: [String!]!
+  member: Member!
+}
+
+type UserInfo {
+  username: String!
+  userMenu: [UserMenuItem!]!
+}
+
+type UserMenuItem {
+  name: String!
+}
+
+scalar DateTime
+
+type Member {
+  id: ID!
+  avatar: String
+  firstName: String
+  lastName: String
+  age: Int
+  salary: Int
+  department: Department
+  joinedAt: DateTime
+  phoneNumber: String
+  email: String
+  pr: String
+  editable: Boolean
+  isLoggedInUser: Boolean
+}
+
+type Department {
+  id: ID!
+  name: String!
+  managerMemberId: ID!
+}

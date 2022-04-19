@@ -12,6 +12,12 @@ import 'reflect-metadata';
 import { AuthorizeSqliteRepository } from './auth/shared/repository/authorizeSqliteRepository';
 import { createMembersRouter } from './members/membersRouter';
 import { PrismaClient } from '@prisma/client';
+import { loadSchema } from '@graphql-tools/load';
+import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
+import { createContext } from './context';
+import { createServer } from '@graphql-yoga/node';
+import { createCheckLoggedInMiddleware } from './auth/check-logged-in/checkLoggedInMiddleware';
+import { resolvers } from './resolvers';
 
 export const prisma = new PrismaClient();
 
@@ -43,6 +49,23 @@ async function start() {
 
   app.use('/users', usersRouter);
   app.use('/members', membersRouter);
+
+  // // Build apollo-server-based graphql endpoint (trial)
+  const schema = await loadSchema('schema.graphql', {
+    loaders: [new GraphQLFileLoader()],
+  });
+  const graphQLServer = createServer({
+    schema: {
+      typeDefs: schema,
+      resolvers: resolvers,
+    },
+    context: createContext({ dataFilter, authorizer, prisma }),
+    plugins: [],
+  });
+
+  app.use('/graphql', createCheckLoggedInMiddleware(authorizer));
+
+  app.use('/graphql', graphQLServer.requestListener);
 
   const port: number = 3031;
   app.listen(port, function () {

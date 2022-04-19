@@ -4,7 +4,10 @@ import { GetLoggedInUserInfoRepository } from './getLoggedInUserInfoRepository';
 export type GetLoggedInUserInfoRequest = {};
 export type GetLoggedInUserInfoResponse = {
   username: string;
-  userMenu: { name: string }[];
+  userMenu: UserMenuItem[];
+};
+export type UserMenuItem = {
+  name: string;
 };
 
 export class GetLoggedInUserInfoService {

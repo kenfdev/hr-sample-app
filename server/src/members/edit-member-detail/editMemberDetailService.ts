@@ -1,7 +1,7 @@
 import { Authorizer } from '@/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
 import { AppError, ErrorCodes } from '@/shared/appError';
-import { DisplayableMember, Member } from '../shared/member';
+import { Member } from '../shared/member';
 import {
   EditMemberDetailRepository,
   UpdatePayload,
