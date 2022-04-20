@@ -11,7 +11,7 @@ Here are some demo Gifs to see how the app looks like:
 The stack:
 
 - Server
-  - Node.js(TypeScript) + Express + TypeOrm
+  - Node.js(TypeScript) + Express+ GraphQL + Prisma
 - Client
   - React
 
@@ -71,7 +71,7 @@ This example creates 2 Oso instances:
 * 1 for the ORM models
 * 1 for the Core models
 
-This is required because the ORM models' field names differ from the Core models. For example, the [MemberOrm](./server/src/members/shared/typeorm/memberOrm.ts) model has a `departmentId` fields but the [Member](./server/src/members/shared/member.ts) model does not. Hence, the Polar differs:
+This is required because the ORM models' field names differ from the Core models. For example, the MemberOrm model from the Database has a `departmentId` field but the [Member](./server/src/members/shared/member.ts) model does not. Hence, the Polar differs:
 
 The ORM Polar:
 

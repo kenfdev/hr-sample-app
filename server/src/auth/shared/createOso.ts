@@ -5,124 +5,13 @@ import { User } from '@/users/shared/user';
 import { UserMenuItem } from '@/users/shared/userMenuItem';
 import { Oso } from 'oso';
 import { Filter, Relation } from 'oso/dist/src/dataFiltering';
-import {
-  Department as DepartmentModel,
-  Member as MemberModel,
-  UserMenuItem as UserMenuItemModel,
-  User as UserModel,
-} from '@prisma/client';
 
-// FIXME: These Orms are extremely verbose
-export class DepartmentOrm implements DepartmentModel {
-  model = prisma.department;
-  id!: string;
-  name!: string;
-  managerMemberId!: string;
-  constructor(data: DepartmentModel) {
-    this.id = data.id;
-    this.name = data.name;
-    this.managerMemberId = data.managerMemberId;
-  }
-  static fromEntity(department: Department): DepartmentOrm {
-    return new DepartmentOrm({
-      id: department.id,
-      name: department.name,
-      managerMemberId: department.managerMemberId,
-    });
-  }
-}
-export class MemberOrm implements MemberModel {
-  model = prisma.member;
-  id: string;
-  avatar: string;
-  firstName: string;
-  lastName: string;
-  joinedAt: Date;
-  phoneNumber: string;
-  email: string;
-  pr: string;
-  age: number;
-  salary: number;
-  departmentId: string;
-  department: DepartmentOrm;
-  constructor(data: MemberModel & { department: DepartmentModel }) {
-    const department = new DepartmentOrm(data.department);
-    this.id = data.id;
-    this.avatar = data.avatar;
-    this.firstName = data.firstName;
-    this.lastName = data.lastName;
-    this.joinedAt = data.joinedAt;
-    this.phoneNumber = data.phoneNumber;
-    this.email = data.email;
-    this.pr = data.pr;
-    this.age = data.age;
-    this.salary = data.salary;
-    this.departmentId = data.departmentId;
-    this.department = department;
-  }
-  static fromEntity(member: Member): MemberOrm {
-    const m = new MemberOrm({
-      id: member.id,
-      avatar: member.avatar,
-      firstName: member.firstName,
-      lastName: member.lastName,
-      joinedAt: member.joinedAt,
-      phoneNumber: member.phoneNumber,
-      email: member.email,
-      pr: member.pr,
-      age: member.age,
-      salary: member.salary,
-      departmentId: member.department.id,
-      department: member.department,
-    });
-    return m;
-  }
-}
-export class UserMenuItemOrm implements UserMenuItemModel {
-  model = prisma.userMenuItem;
-  id: string;
-  name: string;
-  order: number;
-  isAdmin: boolean;
-  constructor(data: UserMenuItemModel) {
-    this.id = data.id;
-    this.name = data.name;
-    this.order = data.order;
-    this.isAdmin = data.isAdmin;
-  }
-}
-export class UserOrm implements UserModel {
-  model = prisma.user;
-  id: string;
-  username: string;
-  isAdmin: boolean;
-  memberId: string;
-  member: MemberOrm;
-
-  constructor(
-    data: UserModel & { member: MemberModel & { department: DepartmentModel } }
-  ) {
-    const member = new MemberOrm(data.member);
-
-    this.id = data.id;
-    this.username = data.username;
-    this.isAdmin = data.isAdmin;
-    this.memberId = data.memberId;
-    this.member = member;
-  }
-
-  static fromEntity(user: User): UserOrm {
-    const member = MemberOrm.fromEntity(user.memberInfo);
-    const u = new UserOrm({
-      id: user.id,
-      isAdmin: user.isAdmin,
-      username: user.username,
-      memberId: user.memberInfo.id,
-      member: member,
-    });
-    return u;
-  }
-}
+// FIXME: Since prisma objects are POJOs, we need to create classes
+// to pass to Oso by ourselves.
+// https://github.com/prisma/prisma/issues/5315
+export class DepartmentOrm { }
+export class MemberOrm { }
+export class UserMenuItemOrm {}
 
 const buildQuery = (constraints: Filter[]) => {
   const constrain = (query: any, c: Filter) => {
@@ -167,7 +56,8 @@ export async function createSqliteDataFilterOso() {
 
   osoDataFilter.setDataFilteringQueryDefaults({ combineQuery, buildQuery });
 
-  osoDataFilter.registerClass(UserOrm, {
+  // Since User will always be the LoggedInUser, we use the core entity class
+  osoDataFilter.registerClass(User, {
     name: 'User',
   });
   osoDataFilter.registerClass(UserMenuItemOrm, {
@@ -193,6 +83,7 @@ export async function createSqliteDataFilterOso() {
       prisma.member.findMany({ where: q, include: { department: true } }),
     fields: {
       id: String,
+      departmentId: String,
       department: new Relation('one', 'Department', 'departmentId', 'id'),
     },
   });

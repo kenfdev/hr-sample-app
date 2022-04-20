@@ -1,5 +1,5 @@
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
-import { MemberOrm, UserOrm } from '@/auth/shared/createOso';
+import { MemberOrm } from '@/auth/shared/createOso';
 import { DataFilter } from '@/auth/shared/dataFilter';
 import { Department } from '@/members/shared/department';
 import { Member } from '@/members/shared/member';
@@ -16,14 +16,11 @@ export class ListAllMembersSqliteRepository
   }
 
   async queryMembers(user: User): Promise<Member[]> {
-    const userModel = UserOrm.fromEntity(user);
-    console.log('queryMembers', userModel);
     const query = await this.dataFilter.authorizedQuery(
-      userModel,
+      user,
       MEMBER_ACTIONS.READ,
       MemberOrm
     );
-    console.log('queryMembers finished', JSON.stringify(query, undefined, 2));
 
     const records = await this.prisma.member.findMany({
       where: query,

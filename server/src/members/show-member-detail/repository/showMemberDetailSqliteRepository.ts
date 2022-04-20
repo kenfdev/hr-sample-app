@@ -1,5 +1,5 @@
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
-import { MemberOrm, UserOrm } from '@/auth/shared/createOso';
+import { MemberOrm } from '@/auth/shared/createOso';
 import { DataFilter } from '@/auth/shared/dataFilter';
 import { Department } from '@/members/shared/department';
 import { Member } from '@/members/shared/member';
@@ -17,10 +17,8 @@ export class ShowMemberDetailSqliteRepository
   }
 
   async queryMember(user: User, memberId: string): Promise<Member> {
-    const userOrm = UserOrm.fromEntity(user);
-
     await this.dataFilter.authorizedQuery<MemberOrm>(
-      userOrm,
+      user,
       MEMBER_ACTIONS.READ,
       MemberOrm
     );

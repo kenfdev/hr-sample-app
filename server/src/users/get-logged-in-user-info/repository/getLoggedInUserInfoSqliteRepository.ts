@@ -1,5 +1,5 @@
 import { USER_MENU_ITEM_ACTIONS } from '@/auth/shared/constants/actions';
-import { UserMenuItemOrm, UserOrm } from '@/auth/shared/createOso';
+import { UserMenuItemOrm } from '@/auth/shared/createOso';
 import { DataFilter } from '@/auth/shared/dataFilter';
 import { User } from '@/users/shared/user';
 import { PrismaClient } from '@prisma/client';
@@ -17,10 +17,8 @@ export class GetLoggedInUserInfoSqliteRepository
   ) {}
 
   async queryUserInfo(user: User): Promise<UserInfo> {
-    const userModel = UserOrm.fromEntity(user);
-
     const query = await this.dataFilter.authorizedQuery(
-      userModel,
+      user,
       USER_MENU_ITEM_ACTIONS.READ,
       UserMenuItemOrm
     );

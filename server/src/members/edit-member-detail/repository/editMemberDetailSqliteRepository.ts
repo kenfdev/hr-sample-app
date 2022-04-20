@@ -4,7 +4,6 @@ import { DataFilter } from '@/auth/shared/dataFilter';
 import { Department } from '@/members/shared/department';
 import { Member } from '@/members/shared/member';
 import { AppError, ErrorCodes } from '@/shared/appError';
-import { UserOrm } from '@/users/shared/typeorm/userOrm';
 import { User } from '@/users/shared/user';
 import { PrismaClient } from '@prisma/client';
 import {
@@ -25,10 +24,8 @@ export class EditMemberDetailSqliteRepository
     memberId: string,
     payload: UpdatePayload
   ): Promise<void> {
-    const userOrm = UserOrm.fromUser(user);
-
     await this.dataFilter.authorizedQuery<MemberOrm>(
-      userOrm,
+      user,
       MEMBER_ACTIONS.READ,
       MemberOrm
     );
