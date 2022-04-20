@@ -1,30 +1,60 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useParams } from 'react-router';
-import { api } from '../api/axios';
-import { Member } from '../models/member';
 import MemberDetail, { FormModel } from '../components/MemberDetail';
 import styled from 'styled-components';
+import { gql, useMutation, useQuery } from '@apollo/client';
+
+export const SHOW_MEMBER_DETAIL = gql`
+  query ShowMemberDetail($memberId: ID!) {
+    showMemberDetail(id: $memberId) {
+      editableFields
+      member {
+        id
+        avatar
+        firstName
+        lastName
+        age
+        salary
+        department {
+          id
+          name
+        }
+        joinedAt
+        phoneNumber
+        email
+        pr
+        editable
+        isLoggedInUser
+      }
+    }
+  }
+`;
+
+const EDIT_MEMBER_DETAIL = gql`
+  mutation EditMemberDetail($input: EditMemberDetailInput!) {
+    editMemberDetail(input: $input) {
+      result
+    }
+  }
+`;
 
 const MemberDetailPage: React.FC = () => {
   const { memberId } = useParams<{ memberId: string }>();
-
-  const [member, setMember] = useState<Member>();
-  const [editableFields, setEditableFields] = useState<Set<string>>(
-    new Set<string>()
+  const { loading: queryLoading, data: queryData } = useQuery(
+    SHOW_MEMBER_DETAIL,
+    {
+      variables: {
+        memberId,
+      },
+    }
   );
+  const [editMember, { loading: mutationLoading }] =
+    useMutation(EDIT_MEMBER_DETAIL);
+
   const [isEditMode, setIsEditMode] = useState(false);
-  const [loading, setLoading] = useState(true);
   let formModel = useRef<FormModel>({});
 
-  useEffect(() => {
-    api.get(`/members/${memberId}`).then((m) => {
-      setMember(m.data.member);
-      setEditableFields(new Set(m.data.editableFields));
-      setLoading(false);
-    });
-  }, [memberId]);
-
-  if (loading) {
+  if (queryLoading || mutationLoading) {
     return <div>Loading...</div>;
   }
 
@@ -37,15 +67,25 @@ const MemberDetailPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    await api.patch(`/members/${memberId}`, {
-      ...formModel.current,
-    });
-    // very dirty optimistic code X0
-    setMember((m: any) => {
-      return { ...m, ...formModel.current };
+    await editMember({
+      variables: {
+        input: {
+          id: memberId,
+          firstName: formModel.current.firstName,
+          lastName: formModel.current.lastName,
+          age: formModel.current.age,
+          salary: formModel.current.salary,
+          phoneNumber: formModel.current.phoneNumber,
+          email: formModel.current.email,
+          pr: formModel.current.pr,
+        },
+      },
+      refetchQueries: [SHOW_MEMBER_DETAIL],
     });
     setIsEditMode(false);
   };
+
+  const { member, editableFields } = queryData.showMemberDetail;
 
   return (
     <div className="is-flex is-flex-direction-column is-align-items-center">
@@ -74,7 +114,7 @@ const MemberDetailPage: React.FC = () => {
         ) : null}
         <MemberDetail
           member={member!}
-          editableFields={editableFields}
+          editableFields={new Set(editableFields)}
           editMode={isEditMode}
           onChange={handleFormModelChange}
         />

@@ -1,17 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { api } from '../api/axios';
+import { gql, useQuery } from '@apollo/client';
 import MembersList from '../components/MembersList';
 
-const MembersPage = (props: any) => {
-  const [members, setMembers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export const LIST_ALL_MEMBERS = gql`
+  query ListAllMembers {
+    listAllMembers {
+      members {
+        id
+        firstName
+        lastName
+        phoneNumber
+        email
+        department {
+          id
+          name
+        }
+        isLoggedInUser
+      }
+    }
+  }
+`;
 
-  useEffect(() => {
-    api.get('/members').then((m) => {
-      setLoading(false);
-      setMembers(m.data.members);
-    });
-  }, []);
+const MembersPage = (props: any) => {
+  const { loading, data } = useQuery(LIST_ALL_MEMBERS);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -20,7 +30,7 @@ const MembersPage = (props: any) => {
   return (
     <div className="is-flex is-flex-direction-column is-align-items-center">
       <div className="title">Members</div>
-      <MembersList members={members} />
+      <MembersList members={data.listAllMembers.members} />
     </div>
   );
 };

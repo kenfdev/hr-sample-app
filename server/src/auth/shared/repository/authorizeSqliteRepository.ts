@@ -31,6 +31,8 @@ export class AuthorizeSqliteRepository implements AuthorizeRepository {
         ErrorCodes.USER_NOT_FOUND
       );
     }
+
+    // TODO: implement helper method
     const user = new User(
       userRecord.id,
       userRecord.username,

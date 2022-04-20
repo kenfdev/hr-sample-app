@@ -169,16 +169,6 @@ export async function createSqliteDataFilterOso() {
 
   osoDataFilter.registerClass(UserOrm, {
     name: 'User',
-    execQuery: (q) =>
-      prisma.user.findMany({
-        where: q,
-        include: { member: { include: { department: true } } },
-      }),
-    fields: {
-      id: String,
-      isAdmin: Boolean,
-      member: new Relation('one', 'Member', 'memberId', 'id'),
-    },
   });
   osoDataFilter.registerClass(UserMenuItemOrm, {
     name: 'UserMenuItem',

@@ -51,6 +51,7 @@ export class EditMemberDetailSqliteRepository
       );
     }
 
+    // TODO: implement helper methods
     return new Member(
       record.id,
       record.avatar,

@@ -33,27 +33,19 @@ export class EditMemberDetailService {
         member
       );
 
-    const authorizedPayload: UpdatePayload = {};
-
-    // have to check if the field is included in the payload
-    // because TypeOrm will try to set undefined values
-    // which will lead to unpredictable consequences
-    if (authorizedFields.has('firstName') && 'firstName' in payload)
-      authorizedPayload.firstName = payload.firstName;
-    if (authorizedFields.has('lastName') && 'lastName' in payload)
-      authorizedPayload.lastName = payload.lastName;
-    if (authorizedFields.has('phoneNumber') && 'phoneNumber' in payload)
-      authorizedPayload.phoneNumber = payload.phoneNumber;
-    if (authorizedFields.has('email') && 'email' in payload)
-      authorizedPayload.email = payload.email;
-    if (authorizedFields.has('pr') && 'pr' in payload)
-      authorizedPayload.pr = payload.pr;
-    if (authorizedFields.has('age') && 'age' in payload)
-      authorizedPayload.age = payload.age;
-    if (authorizedFields.has('salary') && 'salary' in payload)
-      authorizedPayload.salary = payload.salary;
-    if (authorizedFields.has('department') && 'departmentId' in payload)
-      authorizedPayload.departmentId = payload.departmentId;
+    const authorizedPayload: UpdatePayload = {
+      ...(authorizedFields.has('firstName') && {
+        firstName: payload.firstName,
+      }),
+      ...(authorizedFields.has('lastName') && { lastName: payload.lastName }),
+      ...(authorizedFields.has('phoneNumber') && {
+        phoneNumber: payload.phoneNumber,
+      }),
+      ...(authorizedFields.has('email') && { email: payload.email }),
+      ...(authorizedFields.has('pr') && { pr: payload.pr }),
+      ...(authorizedFields.has('age') && { age: payload.age }),
+      ...(authorizedFields.has('salary') && { salary: payload.salary }),
+    };
 
     if (Object.keys(authorizedPayload).length === 0) {
       throw new AppError(

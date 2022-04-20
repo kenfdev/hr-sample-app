@@ -4,7 +4,8 @@ import LoginPage from './pages/LoginPage';
 import MembersPage from './pages/MembersPage';
 import MemberDetailPage from './pages/MemberDetailPage';
 import Navbar, { UserInfo } from './components/Navbar';
-import { api } from './api/axios';
+import { client } from '.';
+import { gql } from '@apollo/client';
 
 export default function App() {
   const location = useLocation();
@@ -12,15 +13,28 @@ export default function App() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
   const handleLogin = async () => {
-    const { data } = await api.get('/users/info');
+    const { data } = await client.query({
+      // TODO: type safety
+      query: gql`
+        query UserInfo {
+          userInfo {
+            username
+            userMenu {
+              name
+            }
+          }
+        }
+      `,
+    });
     setUserInfo({
-      username: data.username,
-      userMenus: data.userMenu.map((um: any) => um.name),
+      username: data.userInfo.username,
+      userMenus: data.userInfo.userMenu.map((um: any) => um.name),
     });
   };
 
-  const handleLogout = () => {
-    api.defaults.headers.common['x-user-id'] = '';
+  const handleLogout = async () => {
+    localStorage.removeItem('token');
+    await client.clearStore();
     history.push('/login');
   };
 

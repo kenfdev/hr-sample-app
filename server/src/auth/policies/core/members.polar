@@ -20,7 +20,3 @@ has_role(user: User, "manager", department: Department) if user.memberInfo.id = 
 
 has_relation(department: Department, "department", member: Member) if
   member.department.id = department.id;
-
-has_permission(user: User, "read", _member: Member) if
-  has_role(user, "manager", user.memberInfo.department) and
-  has_relation(user.memberInfo.department, "department", user.memberInfo);

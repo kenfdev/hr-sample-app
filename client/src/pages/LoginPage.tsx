@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { api } from '../api/axios';
+
 
 type Props = {
   onLogin: () => Promise<void>;
@@ -12,7 +12,7 @@ const LoginPage: React.FC<Props> = (props) => {
   const history = useHistory();
 
   const handleClick = async (userId: string) => {
-    api.defaults.headers.common['x-user-id'] = userId; // fake login
+    localStorage.setItem('token', userId);
 
     await props.onLogin();
 

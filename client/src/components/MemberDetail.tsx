@@ -27,7 +27,6 @@ const MemberDetail: React.FC<Props> = ({
   const [formModel, setFormModel] = useState({ ...member });
 
   const onFormModelChange = (field: string, value: any) => {
-    console.log(field, value);
     setFormModel((originalModel: any) => {
       const newModel = { ...originalModel, [field]: value };
       onChange(newModel);
@@ -72,7 +71,7 @@ const MemberDetail: React.FC<Props> = ({
               <div className="control">
                 <input
                   className="input"
-                  type="number"
+                  type="text"
                   placeholder="Text input"
                   value={formModel.lastName}
                   onChange={(e: any) =>
@@ -93,7 +92,7 @@ const MemberDetail: React.FC<Props> = ({
                 <div className="control">
                   <input
                     className="input"
-                    type="text"
+                    type="number"
                     placeholder="Text input"
                     value={formModel.age}
                     onChange={(e: any) =>
@@ -170,11 +169,11 @@ const MemberDetail: React.FC<Props> = ({
                 <div className="control">
                   <input
                     className="input"
-                    type="text"
+                    type="number"
                     placeholder="Text input"
                     value={formModel.salary}
                     onChange={(e: any) =>
-                      onFormModelChange('salary', e.target.value)
+                      onFormModelChange('salary', Number(e.target.value))
                     }
                   />
                 </div>
