@@ -6,7 +6,10 @@
     "dev": "nodemon -r tsconfig-paths/register -e ts,json,polar src/app.ts",
     "test": "jest",
     "start": "ts-node src/index.ts",
-    "codegen": "graphql-codegen --config codegen.yml"
+    "codegen": "graphql-codegen --config codegen.yml",
+    "db:migrate": "prisma migrate dev",
+    "db:reset": "prisma migrate reset",
+    "db:seed": "prisma db seed"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -25,6 +28,7 @@
     "sqlite3": "^5.0.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^6.2.0",
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/typescript": "^2.4.8",
     "@graphql-codegen/typescript-resolvers": "^2.6.1",

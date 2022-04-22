@@ -1,6 +1,6 @@
 import { DEPARTMENT_IDS, USERS } from '../src/database/constants';
 import { PrismaClient, Prisma, Member, User } from '@prisma/client';
-import faker from 'faker';
+import faker from '@faker-js/faker';
 const prisma = new PrismaClient();
 
 const departments: Prisma.DepartmentCreateInput[] = [
@@ -12,23 +12,23 @@ const departments: Prisma.DepartmentCreateInput[] = [
   {
     id: DEPARTMENT_IDS.itsec,
     name: 'itsec',
-    managerMemberId: faker.random.uuid(),
+    managerMemberId: faker.datatype.uuid(),
   },
   {
     id: DEPARTMENT_IDS.hr,
     name: 'hr',
-    managerMemberId: faker.random.uuid(),
+    managerMemberId: faker.datatype.uuid(),
   },
 ];
 
 const memberFactory = () => {
   const member = {} as Member;
-  member.id = faker.random.uuid();
+  member.id = faker.datatype.uuid();
   member.avatar = faker.image.avatar();
   member.firstName = faker.name.firstName();
   member.lastName = faker.name.lastName();
-  member.age = faker.random.number({ min: 25, max: 60 });
-  member.salary = faker.random.number({ min: 40000, max: 90000 });
+  member.age = faker.datatype.number({ min: 25, max: 60 });
+  member.salary = faker.datatype.number({ min: 40000, max: 90000 });
   member.joinedAt = faker.date.past();
   member.phoneNumber = faker.phone.phoneNumber('###-####-####');
   member.email = faker.internet.exampleEmail();
@@ -44,8 +44,8 @@ const memberFactory = () => {
 
 const userFactory = () => {
   const user = {} as User;
-  user.id = faker.random.uuid();
-  user.isAdmin = faker.random.boolean();
+  user.id = faker.datatype.uuid();
+  user.isAdmin = faker.datatype.boolean();
   user.username = faker.internet.userName();
   return user;
 };
