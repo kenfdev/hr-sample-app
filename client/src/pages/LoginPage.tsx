@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-
+import { client } from '..';
 
 type Props = {
   onLogin: () => Promise<void>;
@@ -12,6 +12,9 @@ const LoginPage: React.FC<Props> = (props) => {
   const history = useHistory();
 
   const handleClick = async (userId: string) => {
+    localStorage.removeItem('token');
+    await client.clearStore();
+
     localStorage.setItem('token', userId);
 
     await props.onLogin();

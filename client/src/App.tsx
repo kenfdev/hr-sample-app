@@ -33,8 +33,6 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    localStorage.removeItem('token');
-    await client.clearStore();
     history.push('/login');
   };
 
