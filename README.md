@@ -15,7 +15,7 @@ The stack:
 - Client
   - React
 
-## ER
+## ERD
 ![Image](https://i.imgur.com/olrqc9g.png)
 
 ## Types of authorization
@@ -51,18 +51,20 @@ The stack:
       - can view other members' public fields only
       - can view private fields of the logged in user
       - can edit public fields of the logged in user (not private fields such as salary)
+      - if is a manager of the department
+        - can view private fields of the members of the department
 
 ## Architecture Overview
 
-![Image](https://i.imgur.com/X1K9gIc.png)
+![](./assets/diagrams/diagrams-Architecture.drawio.png)
 
 Basically:
-1. The UseCaseController receives a request
-2. The UseCaseController invokes the UseCaseService's method
+1. The GraphQL Resolver receives a request
+2. The Resolver invokes the UseCaseService's method
    1. The UseCaseService invokes the UseCaseRepository to fetch data
       1. The UseCaseRepository fetches data from SQLite (Calls the DataFilter if filtering is necessary)
    2. The UseCaseService enforces field-level authorization and returns results to the UseCaseController
-3. The UseCaseController sends the response to the requester
+3. The Resolver sends the response to the requester
 
 ### Why use 2 Oso instances?
 
@@ -77,8 +79,8 @@ The ORM Polar:
 
 ```sh
 has_permission(user: User, "read", member: Member) if
-  user.member.department.id = member.departmentId or
-  user.member.department.name = "hr";
+  user.memberInfo.department.id = member.departmentId or
+  user.memberInfo.department.name = "hr";
 ```
 
 The Core Polar:
@@ -89,7 +91,7 @@ has_permission(user: User, "read", member: Member) if
   user.memberInfo.department.name = "hr";
 ```
 
-Look how the field names `user.member` and `user.memberInfo` differ. You can rename the Core models to use `user.member`, but, imo field names shouldn't depend on tools and frameworks. They should be isolated.
+Look how the field names `member.departmentId` and `member.department.id` differ. You can add `departmentId` to the Core models to use `member.departmentId`, but, imo field names shouldn't depend on tools and frameworks. They should be isolated (especially in the core domain).
 
 ### Where Oso is used
 
@@ -118,7 +120,7 @@ cd server
 npm install
 
 # seed the SQLite database
-npm run seed:refresh
+npm run db:reset
 
 # start the server
 npm run dev
@@ -133,12 +135,13 @@ cd client
 npm install
 
 # start the front-end locally
-npm start
+npm run dev
 ```
 
 ### Start playing around
 
-Access http://localhost:3000/login and you'll see a page like the one below:
-![Image](https://i.imgur.com/u58mPWf.png)
+Access http://localhost:3030/login and you'll see a page like the one below:
+
+![](./assets/login.png)
 
 Select a user and you will be logged in as the selected user for further requests.

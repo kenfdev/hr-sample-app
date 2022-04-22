@@ -6,7 +6,9 @@
     "dev": "nodemon -r tsconfig-paths/register -e ts,json,polar src/app.ts",
     "test": "jest",
     "start": "ts-node src/index.ts",
+    "postinstall": "npm run prisma:generate",
     "codegen": "graphql-codegen --config codegen.yml",
+    "prisma:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
     "db:seed": "prisma db seed"
