@@ -1,22 +1,75 @@
 import { prisma } from '@/app';
 import { Department } from '@/members/shared/department';
 import { Member } from '@/members/shared/member';
+import {
+  Member as PrismaMember,
+  Department as PrismaDepartment,
+  UserMenuItem as PrismaUserMenuItem,
+} from '@prisma/client';
 import { User } from '@/users/shared/user';
 import { UserMenuItem } from '@/users/shared/userMenuItem';
 import { Oso } from 'oso';
 import { Filter, Relation } from 'oso/dist/src/dataFiltering';
+import { PrimitivePropertyNames } from '@/shared/sharedTypes';
 
 // FIXME: Since prisma objects are POJOs, we need to create classes
 // to pass to Oso by ourselves.
 // https://github.com/prisma/prisma/issues/5315
-export class DepartmentOrm { }
-export class MemberOrm { }
-export class UserMenuItemOrm {}
+export class DepartmentOrm {
+  static entityFieldMap: Record<
+    PrimitivePropertyNames<Department>,
+    PrimitivePropertyNames<PrismaDepartment>
+  > = {
+    id: 'id',
+    name: 'name',
+    managerMemberId: 'managerMemberId',
+  };
 
-const buildQuery = (constraints: Filter[]) => {
+  static buildQuery(constraints: Filter[]) {
+    return buildQuery(constraints, DepartmentOrm.entityFieldMap);
+  }
+}
+export class MemberOrm {
+  static entityFieldMap: Record<
+    PrimitivePropertyNames<Member>,
+    PrimitivePropertyNames<PrismaMember>
+  > = {
+    id: 'id',
+    age: 'age',
+    avatar: 'avatar',
+    email: 'email',
+    firstName: 'firstName',
+    lastName: 'lastName',
+    phoneNumber: 'phoneNumber',
+    pr: 'pr',
+    salary: 'salary',
+  };
+
+  static buildQuery(constraints: Filter[]) {
+    return buildQuery(constraints, MemberOrm.entityFieldMap);
+  }
+}
+
+export class UserMenuItemOrm {
+  static entityFieldMap: Record<
+    PrimitivePropertyNames<UserMenuItem>,
+    PrimitivePropertyNames<PrismaUserMenuItem>
+  > = {
+    name: 'name',
+    isAdmin: 'isAdmin',
+  };
+
+  static buildQuery(constraints: Filter[]) {
+    return buildQuery(constraints, UserMenuItemOrm.entityFieldMap);
+  }
+}
+
+const buildQuery = (
+  constraints: Filter[],
+  fieldMap: Record<string, string> = {}
+) => {
   const constrain = (query: any, c: Filter) => {
     if (c.field === undefined) {
-      // console.log(c);
       c.field = 'id';
       c.value =
         c.kind == 'In'
@@ -24,11 +77,15 @@ const buildQuery = (constraints: Filter[]) => {
           : (c.value as any).id; // FIXME: any
     }
 
+    // map entity field names to database field names
+    // if no mapping is found, use the field name as is
+    const fieldName = (fieldMap[c.field as string] || c.field) as string;
+
     let q;
 
-    if (c.kind === 'Eq') q = { [c.field as string]: c.value };
-    else if (c.kind === 'Neq') q = { NOT: { [c.field as string]: c.value } };
-    else if (c.kind === 'In') query[c.field as string] = { in: c.value };
+    if (c.kind === 'Eq') q = { [fieldName]: c.value };
+    else if (c.kind === 'Neq') q = { NOT: { [fieldName]: c.value } };
+    else if (c.kind === 'In') query[fieldName] = { in: c.value };
     else throw new Error(`Unknown constraint kind: ${c.kind}`);
 
     return { AND: [query, q] };
@@ -54,7 +111,9 @@ const execFromModel = (model: any) => {
 export async function createSqliteDataFilterOso() {
   const osoDataFilter = new Oso();
 
-  osoDataFilter.setDataFilteringQueryDefaults({ combineQuery, buildQuery });
+  osoDataFilter.setDataFilteringQueryDefaults({
+    combineQuery,
+  });
 
   // Since User will always be the LoggedInUser, we use the core entity class
   osoDataFilter.registerClass(User, {
@@ -63,6 +122,7 @@ export async function createSqliteDataFilterOso() {
   osoDataFilter.registerClass(UserMenuItemOrm, {
     name: 'UserMenuItem',
     execQuery: execFromModel(prisma.userMenuItem),
+    buildQuery: UserMenuItemOrm.buildQuery,
     fields: {
       id: String,
       isAdmin: Boolean,
@@ -71,6 +131,7 @@ export async function createSqliteDataFilterOso() {
   osoDataFilter.registerClass(DepartmentOrm, {
     name: 'Department',
     execQuery: execFromModel(prisma.department),
+    buildQuery: DepartmentOrm.buildQuery,
     fields: {
       id: String,
       name: String,
@@ -80,7 +141,11 @@ export async function createSqliteDataFilterOso() {
   osoDataFilter.registerClass(MemberOrm, {
     name: 'Member',
     execQuery: (q) =>
-      prisma.member.findMany({ where: q, include: { department: true } }),
+      prisma.member.findMany({
+        where: q,
+        include: { department: true },
+      }),
+    buildQuery: MemberOrm.buildQuery,
     fields: {
       id: String,
       departmentId: String,
@@ -91,7 +156,6 @@ export async function createSqliteDataFilterOso() {
     `${__dirname}/../policies/main.polar`,
     `${__dirname}/../policies/users.polar`,
     `${__dirname}/../policies/members.polar`,
-    `${__dirname}/../policies/orm/members.polar`,
   ]);
 
   return osoDataFilter;
@@ -107,7 +171,6 @@ export async function createCoreOso() {
     `${__dirname}/../policies/main.polar`,
     `${__dirname}/../policies/users.polar`,
     `${__dirname}/../policies/members.polar`,
-    `${__dirname}/../policies/core/members.polar`,
   ]);
 
   return oso;

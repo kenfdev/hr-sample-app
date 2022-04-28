@@ -24,7 +24,7 @@ export class EditMemberDetailSqliteRepository
     memberId: string,
     payload: UpdatePayload
   ): Promise<void> {
-    await this.dataFilter.authorizedQuery<MemberOrm>(
+    await this.dataFilter.authorizedQuery(
       user,
       MEMBER_ACTIONS.READ,
       MemberOrm
