@@ -1,5 +1,6 @@
 import { Authorizer } from '@/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
+import { NotAuthorizedError } from '@/auth/shared/errors/not-authorized-error';
 import { AppError, ErrorCodes } from '@/shared/appError';
 import { Member } from '../shared/member';
 import {
@@ -25,43 +26,50 @@ export class EditMemberDetailService {
     memberId,
     payload,
   }: EditMemberDetailRequest): Promise<EditMemberDetailResponse> {
-    const member = await this.repository.queryMember(memberId);
+    try {
+      const member = await this.repository.queryMember(memberId);
 
-    const authorizedFields =
-      await this.authorizer.authorizedFieldsForUser<Member>(
-        MEMBER_ACTIONS.UPDATE,
-        member
+      const authorizedFields =
+        await this.authorizer.authorizedFieldsForUser<Member>(
+          MEMBER_ACTIONS.UPDATE,
+          member
+        );
+
+      const authorizedPayload: UpdatePayload = {
+        ...(authorizedFields.has('firstName') && {
+          firstName: payload.firstName,
+        }),
+        ...(authorizedFields.has('lastName') && { lastName: payload.lastName }),
+        ...(authorizedFields.has('phoneNumber') && {
+          phoneNumber: payload.phoneNumber,
+        }),
+        ...(authorizedFields.has('email') && { email: payload.email }),
+        ...(authorizedFields.has('pr') && { pr: payload.pr }),
+        ...(authorizedFields.has('age') && { age: payload.age }),
+        ...(authorizedFields.has('salary') && { salary: payload.salary }),
+      };
+
+      if (Object.keys(authorizedPayload).length === 0) {
+        throw new AppError(
+          'nothing is able to be updated',
+          ErrorCodes.BAD_REQUEST
+        );
+      }
+
+      await this.repository.updateMember(
+        this.authorizer.currentUser,
+        memberId,
+        authorizedPayload
       );
 
-    const authorizedPayload: UpdatePayload = {
-      ...(authorizedFields.has('firstName') && {
-        firstName: payload.firstName,
-      }),
-      ...(authorizedFields.has('lastName') && { lastName: payload.lastName }),
-      ...(authorizedFields.has('phoneNumber') && {
-        phoneNumber: payload.phoneNumber,
-      }),
-      ...(authorizedFields.has('email') && { email: payload.email }),
-      ...(authorizedFields.has('pr') && { pr: payload.pr }),
-      ...(authorizedFields.has('age') && { age: payload.age }),
-      ...(authorizedFields.has('salary') && { salary: payload.salary }),
-    };
-
-    if (Object.keys(authorizedPayload).length === 0) {
-      throw new AppError(
-        'nothing is able to be updated',
-        ErrorCodes.BAD_REQUEST
-      );
+      return {
+        result: true,
+      };
+    } catch (error) {
+      if (error instanceof NotAuthorizedError) {
+        return { result: false };
+      }
+      throw error;
     }
-
-    await this.repository.updateMember(
-      this.authorizer.currentUser,
-      memberId,
-      authorizedPayload
-    );
-
-    return {
-      result: true,
-    };
   }
 }

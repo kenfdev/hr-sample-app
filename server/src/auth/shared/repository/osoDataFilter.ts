@@ -1,5 +1,6 @@
 import { Oso } from 'oso';
 import { DataFilter } from '../dataFilter';
+import { NotAuthorizedError } from '../errors/not-authorized-error';
 
 export class OsoDataFilter implements DataFilter {
   constructor(private readonly oso: Oso) {}
@@ -12,7 +13,17 @@ export class OsoDataFilter implements DataFilter {
     return this.oso.authorizedResources<T>(actor, action, resource);
   }
 
-  authorizedQuery(actor: any, action: any, resource: any) {
-    return this.oso.authorizedQuery(actor, action, resource) as any;
+  async authorizedQuery(actor: any, action: any, resource: any) {
+    const query = (await this.oso.authorizedQuery(
+      actor,
+      action,
+      resource
+    )) as any;
+    if (query === null) {
+      throw new NotAuthorizedError(
+        `no rules found: actor:${actor}, action:${action}, resource:${resource}`
+      );
+    }
+    return query;
   }
 }

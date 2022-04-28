@@ -1,4 +1,5 @@
 import { Authorizer } from '@/auth/shared/authorizer';
+import { NotAuthorizedError } from '@/auth/shared/errors/not-authorized-error';
 import { GetLoggedInUserInfoRepository } from './getLoggedInUserInfoRepository';
 
 export type GetLoggedInUserInfoRequest = {};
@@ -17,13 +18,23 @@ export class GetLoggedInUserInfoService {
   ) {}
 
   async execute(): Promise<GetLoggedInUserInfoResponse> {
-    const userInfo = await this.repository.queryUserInfo(
-      this.authorizer.currentUser
-    );
-    this.authorizer.currentUser.username;
-    return {
-      username: this.authorizer.currentUser.username,
-      userMenu: userInfo.userMenu,
-    };
+    try {
+      const userInfo = await this.repository.queryUserInfo(
+        this.authorizer.currentUser
+      );
+      this.authorizer.currentUser.username;
+      return {
+        username: this.authorizer.currentUser.username,
+        userMenu: userInfo.userMenu,
+      };
+    } catch (error) {
+      if (error instanceof NotAuthorizedError) {
+        return {
+          username: this.authorizer.currentUser.username,
+          userMenu: [],
+        };
+      }
+      throw error;
+    }
   }
 }

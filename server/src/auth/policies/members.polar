@@ -12,6 +12,7 @@ resource Member {
 
   "read" if "same_department";
   "read" if "hr_member";
+  "read" if "self";
 
   "update" if "self";
   "update" if "hr_member";

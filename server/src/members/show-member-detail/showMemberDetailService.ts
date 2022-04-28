@@ -1,5 +1,6 @@
 import { Authorizer } from '@/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
+import { NotAuthorizedError } from '@/auth/shared/errors/not-authorized-error';
 import { DisplayableMember, Member } from '../shared/member';
 import { ShowMemberDetailRepository } from './showMemberDetailRepository';
 
@@ -25,37 +26,42 @@ export class ShowMemberDetailService {
       req.memberId
     );
 
-    const authorizedFields =
-      await this.authorizer.authorizedFieldsForUser<Member>(
-        MEMBER_ACTIONS.READ,
+    try {
+      const authorizedFields =
+        await this.authorizer.authorizedFieldsForUser<Member>(
+          MEMBER_ACTIONS.READ,
+          member
+        );
+      const authorizedMember =
+        member.createObjectWithAuthorizedFields(authorizedFields);
+
+      const allowedActions = await this.authorizer.authorizedActionsForUser(
         member
       );
-    const authorizedMember =
-      member.createObjectWithAuthorizedFields(authorizedFields);
 
-    const allowedActions = await this.authorizer.authorizedActionsForUser(
-      member
-    );
+      let authorizedFieldsToUpdate: string[] = [];
+      if (allowedActions.has(MEMBER_ACTIONS.UPDATE)) {
+        authorizedMember.editable = true;
 
-    let authorizedFieldsToUpdate: string[] = [];
-    if (allowedActions.has(MEMBER_ACTIONS.UPDATE)) {
-      authorizedMember.editable = true;
+        const fields = await this.authorizer.authorizedFieldsForUser<Member>(
+          MEMBER_ACTIONS.UPDATE,
+          member
+        );
+        // FIXME: exclude readonly fields such as id, joinedAt
+        authorizedFieldsToUpdate = Array.from(fields.values()).map((f) => f);
+      }
 
-      const fields = await this.authorizer.authorizedFieldsForUser<Member>(
-        MEMBER_ACTIONS.UPDATE,
-        member
-      );
-      // FIXME: exclude readonly fields such as id, joinedAt
-      authorizedFieldsToUpdate = Array.from(fields.values()).map((f) => f);
+      if (member.id === this.authorizer.currentUser.memberInfo.id) {
+        authorizedMember.isLoggedInUser = true;
+      }
+
+      return {
+        editableFields: authorizedFieldsToUpdate,
+        member: authorizedMember,
+      };
+    } catch (error) {
+      // TODO: return 404 NOT FOUND
+      throw error;
     }
-
-    if (member.id === this.authorizer.currentUser.memberInfo.id) {
-      authorizedMember.isLoggedInUser = true;
-    }
-
-    return {
-      editableFields: authorizedFieldsToUpdate,
-      member: authorizedMember,
-    };
   }
 }
