@@ -1,6 +1,5 @@
 import { Authorizer } from '@/auth/shared/authorizer';
 import express, { Application } from 'express';
-import { createUsersRouter } from '@/users/usersRouter';
 
 import 'reflect-metadata';
 
@@ -15,18 +14,16 @@ import { GetLoggedInUserInfoSqliteRepository } from '@/users/get-logged-in-user-
 import { GetLoggedInUserInfoService } from '@/users/get-logged-in-user-info/getLoggedInUserInfoService';
 import { ListAllMembersSqliteRepository } from '@/members/list-all-members/repository/listAllMembersSqliteRepository';
 import { ListAllMembersService } from '@/members/list-all-members/listAllMembersService';
-import { ShowMemberDetailSqliteRepository } from '@/members/show-member-detail/repository/showMemberDetailSqliteRepository';
 import { ShowMemberDetailService } from '@/members/show-member-detail/showMemberDetailService';
-import { EditMemberDetailSqliteRepository } from '@/members/edit-member-detail/repository/editMemberDetailSqliteRepository';
 import { EditMemberDetailService } from '@/members/edit-member-detail/editMemberDetailService';
-import { createMembersRouter } from '@/members/membersRouter';
 import {
   createCoreOso,
   createSqliteDataFilterOso,
 } from '@/auth/shared/createOso';
-import { AuthorizeSqliteRepository } from '@/auth/shared/repository/authorizeSqliteRepository';
 import { OsoDataFilter } from '@/auth/shared/repository/osoDataFilter';
 import { createCheckLoggedInMiddleware } from '@/auth/check-logged-in/checkLoggedInMiddleware';
+import { PrismaMemberRepository } from '@/members/infra/repos/prismaMemberRepository';
+import { PrismaUserRepository } from '@/auth/shared/repository/prismaUserRepository';
 
 export const prisma = new PrismaClient();
 
@@ -58,21 +55,14 @@ const createUseCases = ({
     authorizer,
     listAllMembersRepository
   );
-  const showMemberDetailRepository = new ShowMemberDetailSqliteRepository(
-    dataFilter,
-    prisma
-  );
+  const prismaMemberRepository = new PrismaMemberRepository(dataFilter, prisma);
   const showMemberDetailService = new ShowMemberDetailService(
     authorizer,
-    showMemberDetailRepository
-  );
-  const editMemberDetailRepository = new EditMemberDetailSqliteRepository(
-    dataFilter,
-    prisma
+    prismaMemberRepository
   );
   const editMemberDetailService = new EditMemberDetailService(
     authorizer,
-    editMemberDetailRepository
+    prismaMemberRepository
   );
 
   return {
@@ -85,32 +75,15 @@ const createUseCases = ({
 
 export async function startServer() {
   const oso = await createCoreOso();
-  const authorizeRepository = new AuthorizeSqliteRepository(prisma);
-  const authorizer = new Authorizer(authorizeRepository, oso);
+  const prismaUserRepository = new PrismaUserRepository(prisma);
+  const authorizer = new Authorizer(prismaUserRepository, oso);
 
   const dataFilterOso = await createSqliteDataFilterOso();
   const dataFilter = new OsoDataFilter(dataFilterOso);
 
-  // users
-  const usersRouter = createUsersRouter({
-    dataFilter,
-    authorizer,
-    prisma,
-  });
-
-  // members
-  const membersRouter = createMembersRouter({
-    dataFilter,
-    authorizer,
-    prisma,
-  });
-
   // express
   const app: Application = express();
   app.use(express.json());
-
-  app.use('/users', usersRouter);
-  app.use('/members', membersRouter);
 
   // // Build apollo-server-based graphql endpoint (trial)
   const schema = await loadSchema('schema.graphql', {

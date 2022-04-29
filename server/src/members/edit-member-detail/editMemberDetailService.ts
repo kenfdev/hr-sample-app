@@ -1,8 +1,8 @@
 import { Authorizer } from '@/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
 import { NotAuthorizedError } from '@/auth/shared/errors/not-authorized-error';
-import { AppError, ErrorCodes } from '@/shared/appError';
 import { Member } from '../shared/member';
+import { MemberNothingToUpdateError } from '../useCases/errors/memberNothingToUpdateError';
 import {
   EditMemberDetailRepository,
   UpdatePayload,
@@ -27,7 +27,10 @@ export class EditMemberDetailService {
     payload,
   }: EditMemberDetailRequest): Promise<EditMemberDetailResponse> {
     try {
-      const member = await this.repository.queryMember(memberId);
+      const member = await this.repository.queryMember(
+        this.authorizer.currentUser,
+        memberId
+      );
 
       const authorizedFields =
         await this.authorizer.authorizedFieldsForUser<Member>(
@@ -50,10 +53,7 @@ export class EditMemberDetailService {
       };
 
       if (Object.keys(authorizedPayload).length === 0) {
-        throw new AppError(
-          'nothing is able to be updated',
-          ErrorCodes.BAD_REQUEST
-        );
+        throw new MemberNothingToUpdateError(memberId);
       }
 
       await this.repository.updateMember(

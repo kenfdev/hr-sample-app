@@ -1,6 +1,5 @@
 import { Authorizer } from '@/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/auth/shared/constants/actions';
-import { NotAuthorizedError } from '@/auth/shared/errors/not-authorized-error';
 import { DisplayableMember, Member } from '../shared/member';
 import { ShowMemberDetailRepository } from './showMemberDetailRepository';
 

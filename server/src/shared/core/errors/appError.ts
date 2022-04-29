@@ -1,4 +1,4 @@
-export class AppError extends Error {
+export abstract class AppError extends Error {
   code: ErrorCode;
   constructor(message: string, code: ErrorCode) {
     super(message);

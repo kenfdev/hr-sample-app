@@ -1,4 +1,4 @@
-import { AppError, ErrorCodes } from '@/shared/appError';
+import { InvalidOperationError } from '@/shared/core/errors/invalidOperationError';
 import { User } from '@/users/shared/user';
 import { Oso } from 'oso';
 import { AuthorizeRepository } from './authorizeRepository';
@@ -13,7 +13,7 @@ export class Authorizer {
 
   get currentUser() {
     if (!this._currentUser) {
-      throw new AppError('invalid operation', ErrorCodes.INVALID_OPERATION);
+      throw new InvalidOperationError();
     }
     return this._currentUser;
   }

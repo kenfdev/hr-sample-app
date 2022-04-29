@@ -13,7 +13,7 @@ export type UpdatePayload = {
 };
 
 export interface EditMemberDetailRepository {
-  queryMember(memberId: string): Promise<Member>;
+  queryMember(user: User, memberId: string): Promise<Member>;
   updateMember(
     user: User,
     memberId: string,

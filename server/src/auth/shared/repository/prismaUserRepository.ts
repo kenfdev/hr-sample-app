@@ -1,11 +1,11 @@
 import { Department } from '@/members/shared/department';
 import { Member } from '@/members/shared/member';
-import { AppError, ErrorCodes } from '@/shared/appError';
 import { User } from '@/users/shared/user';
 import { PrismaClient } from '@prisma/client';
 import { AuthorizeRepository } from '../authorizeRepository';
+import { UserNotFoundError } from '../errors/userNotFoundError';
 
-export class AuthorizeSqliteRepository implements AuthorizeRepository {
+export class PrismaUserRepository implements AuthorizeRepository {
   private readonly prisma: PrismaClient;
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
@@ -26,10 +26,7 @@ export class AuthorizeSqliteRepository implements AuthorizeRepository {
     });
 
     if (!userRecord) {
-      throw new AppError(
-        `user id ${userId} not found`,
-        ErrorCodes.USER_NOT_FOUND
-      );
+      throw new UserNotFoundError(userId);
     }
 
     // TODO: implement helper method
