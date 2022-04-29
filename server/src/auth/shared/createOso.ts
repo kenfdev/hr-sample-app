@@ -108,6 +108,12 @@ const execFromModel = (model: any) => {
   return (q: any) => model.findMany({ where: q }); // FIXME: any
 };
 
+const policyFiles = [
+  `${__dirname}/../policies/main.polar`,
+  `${__dirname}/../policies/users.polar`,
+  `${__dirname}/../policies/members.polar`,
+];
+
 export async function createSqliteDataFilterOso() {
   const osoDataFilter = new Oso();
 
@@ -152,11 +158,7 @@ export async function createSqliteDataFilterOso() {
       department: new Relation('one', 'Department', 'departmentId', 'id'),
     },
   });
-  await osoDataFilter.loadFiles([
-    `${__dirname}/../policies/main.polar`,
-    `${__dirname}/../policies/users.polar`,
-    `${__dirname}/../policies/members.polar`,
-  ]);
+  await osoDataFilter.loadFiles(policyFiles);
 
   return osoDataFilter;
 }
@@ -167,11 +169,7 @@ export async function createCoreOso() {
   oso.registerClass(UserMenuItem);
   oso.registerClass(Department);
   oso.registerClass(Member);
-  await oso.loadFiles([
-    `${__dirname}/../policies/main.polar`,
-    `${__dirname}/../policies/users.polar`,
-    `${__dirname}/../policies/members.polar`,
-  ]);
+  await oso.loadFiles(policyFiles);
 
   return oso;
 }
