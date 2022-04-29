@@ -2,7 +2,7 @@ overwrite: true
 schema: 'schema.graphql'
 documents: null
 generates:
-  src/generated/resolver-types.ts:
+  src/shared/infra/http/generated/resolver-types.ts:
     plugins:
       - 'typescript'
       - 'typescript-resolvers'

@@ -1,4 +1,3 @@
-import { prisma } from '@/app';
 import { Department } from '@/members/shared/department';
 import { Member } from '@/members/shared/member';
 import {
@@ -11,6 +10,7 @@ import { UserMenuItem } from '@/users/shared/userMenuItem';
 import { Oso } from 'oso';
 import { Filter, Relation } from 'oso/dist/src/dataFiltering';
 import { PrimitivePropertyNames } from '@/shared/sharedTypes';
+import { prisma } from '@/shared/infra/http/app';
 
 // FIXME: Since prisma objects are POJOs, we need to create classes
 // to pass to Oso by ourselves.

@@ -1,4 +1,4 @@
-import { DEPARTMENT_IDS, USERS } from '../src/database/constants';
+import { DEPARTMENT_IDS, USERS } from '../constants';
 import { PrismaClient, Prisma, Member, User } from '@prisma/client';
 import faker from '@faker-js/faker';
 const prisma = new PrismaClient();
