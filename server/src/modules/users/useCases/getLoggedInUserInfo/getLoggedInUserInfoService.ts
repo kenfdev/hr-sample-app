@@ -1,8 +1,10 @@
 import { Authorizer } from '@/modules/auth/shared/authorizer';
-import { NotAuthorizedError } from '@/modules/auth/shared/errors/not-authorized-error';
+import { USER_MENU_ITEM_ACTIONS } from '@/modules/auth/shared/constants/actions';
+import { UserMenuItemOrm } from '@/modules/auth/shared/createOso';
+import { DataFilter } from '@/modules/auth/shared/dataFilter';
 import { Result } from '@/shared/core/result';
 import { UseCase } from '@/shared/core/useCase';
-import { GetLoggedInUserInfoRepository } from './getLoggedInUserInfoRepository';
+import { PrismaClient } from '@prisma/client';
 
 export type GetLoggedInUserInfoRequest = {};
 export type GetLoggedInUserInfoResponse = {
@@ -19,26 +21,28 @@ export class GetLoggedInUserInfoService
 {
   constructor(
     private readonly authorizer: Authorizer,
-    private readonly repository: GetLoggedInUserInfoRepository
+    private readonly dataFilter: DataFilter,
+    private readonly prisma: PrismaClient
   ) {}
 
   async execute(): Promise<Result<GetLoggedInUserInfoResponse>> {
-    const userInfoOrError = await this.repository.queryUserInfo(
-      this.authorizer.currentUser
+    const query = await this.dataFilter.authorizedQuery(
+      this.authorizer.currentUser,
+      USER_MENU_ITEM_ACTIONS.READ,
+      UserMenuItemOrm
     );
-    if (userInfoOrError.isFailure) {
-      if (userInfoOrError.error instanceof NotAuthorizedError) {
-        return Result.ok({
-          username: this.authorizer.currentUser.username,
-          userMenu: [],
-        });
-      }
-      return Result.fail(userInfoOrError.error);
-    }
+
+    const menuItems = await this.prisma.userMenuItem.findMany({
+      select: {
+        name: true,
+      },
+      where: query,
+      orderBy: { order: 'asc' },
+    });
 
     return Result.ok({
       username: this.authorizer.currentUser.username,
-      userMenu: userInfoOrError.getValue().userMenu,
+      userMenu: menuItems,
     });
   }
 }

@@ -1,14 +1,15 @@
 import { User } from '@/modules/users/dtos/userDTO';
-import { PrismaUserRepository } from '@/modules/users/infra/repos/prismaUserRepository';
 import { InvalidOperationError } from '@/shared/core/errors/invalidOperationError';
 import { Result } from '@/shared/core/result';
+import { PrismaClient } from '@prisma/client';
 import { Oso } from 'oso';
+import { UserNotFoundError } from './errors/userNotFoundError';
 
 export class Authorizer {
   _currentUser?: User;
 
   constructor(
-    private readonly repository: PrismaUserRepository,
+    private readonly prisma: PrismaClient,
     private readonly oso: Oso
   ) {}
 
@@ -20,7 +21,25 @@ export class Authorizer {
   }
 
   async setUser(userId: string): Promise<void> {
-    const user = await this.repository.getUser(userId);
+    const userRecord = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        member: {
+          include: {
+            department: true,
+          },
+        },
+      },
+    });
+
+    if (!userRecord) {
+      throw new UserNotFoundError(userId);
+    }
+
+    const user = User.createFromOrmModel(userRecord);
+
     this._currentUser = user;
   }
 

@@ -4,7 +4,9 @@ import { Result } from '@/shared/core/result';
 import { UseCase } from '@/shared/core/useCase';
 import { Member } from '../../dtos/memberDTO';
 import { DisplayableMember } from '../../dtos/displayableMemberDTO';
-import { ListAllMembersRepository } from './listAllMembersRepository';
+import { DataFilter } from '@/modules/auth/shared/dataFilter';
+import { MemberOrm } from '@/modules/auth/shared/createOso';
+import { PrismaClient } from '@prisma/client';
 
 export type ListAllMembersRequest = {};
 export type ListAllMembersResponse = {
@@ -16,30 +18,37 @@ export class ListAllMembersService
 {
   constructor(
     private readonly authorizer: Authorizer,
-    private readonly repository: ListAllMembersRepository
+    private readonly dataFilter: DataFilter,
+    private readonly prisma: PrismaClient
   ) {}
 
   async execute(): Promise<Result<ListAllMembersResponse>> {
-    const membersOrError = await this.repository.queryMembers(
-      this.authorizer.currentUser
+    const query = await this.dataFilter.authorizedQuery(
+      this.authorizer.currentUser,
+      MEMBER_ACTIONS.READ,
+      MemberOrm
     );
-    if (membersOrError.isFailure) {
-      return Result.fail(membersOrError.error);
-    }
+    const memberModels = await this.prisma.member.findMany({
+      where: query,
+      include: {
+        department: true,
+      },
+    });
 
     const authorizedMembers: DisplayableMember[] = [];
-    for (const member of membersOrError.getValue()) {
+    for (const memberModel of memberModels) {
+      const memberDto = Member.createFromOrmModel(memberModel);
       const authorizedFieldsOrError =
         await this.authorizer.authorizedFieldsForUser<Member>(
           MEMBER_ACTIONS.READ,
-          member
+          memberDto
         );
       if (authorizedFieldsOrError.isFailure) {
         return Result.fail(authorizedFieldsOrError.error);
       }
 
       const authorizedMember: DisplayableMember = {
-        ...member.createObjectWithAuthorizedFields(
+        ...memberDto.createObjectWithAuthorizedFields(
           authorizedFieldsOrError.getValue()
         ),
         editable: false,
@@ -47,7 +56,7 @@ export class ListAllMembersService
       };
 
       const allowedActionsOrError =
-        await this.authorizer.authorizedActionsForUser(member);
+        await this.authorizer.authorizedActionsForUser(memberModel);
       if (allowedActionsOrError.isFailure) {
         return Result.fail(allowedActionsOrError.error);
       }
@@ -56,7 +65,7 @@ export class ListAllMembersService
         authorizedMember.editable = true;
       }
 
-      if (member.id === this.authorizer.currentUser.memberInfo.id) {
+      if (memberModel.id === this.authorizer.currentUser.memberInfo.id) {
         authorizedMember.isLoggedInUser = true;
       }
 

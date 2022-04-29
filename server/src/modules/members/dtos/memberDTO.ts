@@ -1,5 +1,9 @@
 import { NonFunctionPropertyNames } from '@/shared/sharedTypes';
 import { Department } from './departmentDTO';
+import {
+  Member as PrismaMember,
+  Department as PrismaDepartment,
+} from '@prisma/client';
 
 export class Member {
   static PUBLIC_FIELDS: NonFunctionPropertyNames<Member>[] = [
@@ -40,5 +44,27 @@ export class Member {
     }
 
     return authorizedMember;
+  }
+
+  static createFromOrmModel(
+    member: PrismaMember & { department: PrismaDepartment }
+  ): Member {
+    return new Member(
+      member.id,
+      member.avatar,
+      member.firstName,
+      member.lastName,
+      member.age,
+      member.salary,
+      new Department(
+        member.department.id,
+        member.department.name,
+        member.department.managerMemberId
+      ),
+      member.joinedAt,
+      member.phoneNumber,
+      member.email,
+      member.pr
+    );
   }
 }

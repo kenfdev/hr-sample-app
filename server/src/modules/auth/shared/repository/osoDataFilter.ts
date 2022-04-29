@@ -1,6 +1,6 @@
 import { Oso } from 'oso';
 import { DataFilter } from '../dataFilter';
-import { NotAuthorizedError } from '../errors/not-authorized-error';
+import { NotAuthorizedError } from '../errors/notAuthorizedError';
 
 export class OsoDataFilter implements DataFilter {
   constructor(private readonly oso: Oso) {}

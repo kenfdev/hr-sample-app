@@ -19,7 +19,6 @@ import {
   createCoreOso,
   createSqliteDataFilterOso,
 } from '@/modules/auth/shared/createOso';
-import { PrismaUserRepository } from '@/modules/users/infra/repos/prismaUserRepository';
 import { OsoDataFilter } from '@/modules/auth/shared/repository/osoDataFilter';
 import { createCheckLoggedInMiddleware } from '@/modules/auth/shared/checkLoggedInMiddleware';
 
@@ -29,29 +28,30 @@ type UseCaseDependencies = {
   dataFilter: DataFilter;
   authorizer: Authorizer;
   prisma: PrismaClient;
-  prismaUserRepository: PrismaUserRepository;
 };
 
 const createUseCases = ({
   dataFilter,
   authorizer,
   prisma,
-  prismaUserRepository,
 }: UseCaseDependencies) => {
   const getLoggedInUserInfoService = new GetLoggedInUserInfoService(
     authorizer,
-    prismaUserRepository
+    dataFilter,
+    prisma
   );
 
   const prismaMemberRepository = new PrismaMemberRepository(dataFilter, prisma);
 
   const listAllMembersService = new ListAllMembersService(
     authorizer,
-    prismaMemberRepository
+    dataFilter,
+    prisma
   );
   const showMemberDetailService = new ShowMemberDetailService(
     authorizer,
-    prismaMemberRepository
+    dataFilter,
+    prisma
   );
   const editMemberDetailService = new EditMemberDetailService(
     authorizer,
@@ -72,8 +72,7 @@ export async function startServer() {
   const dataFilterOso = await createSqliteDataFilterOso();
   const dataFilter = new OsoDataFilter(dataFilterOso);
 
-  const prismaUserRepository = new PrismaUserRepository(dataFilter, prisma);
-  const authorizer = new Authorizer(prismaUserRepository, oso);
+  const authorizer = new Authorizer(prisma, oso);
 
   // express
   const app: Application = express();
@@ -88,7 +87,6 @@ export async function startServer() {
     dataFilter,
     authorizer,
     prisma,
-    prismaUserRepository,
   });
   const resolvers = createResolvers(useCases);
   const graphQLServer = createServer({

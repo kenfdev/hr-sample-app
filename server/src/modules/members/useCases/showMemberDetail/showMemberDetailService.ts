@@ -4,7 +4,10 @@ import { Result } from '@/shared/core/result';
 import { UseCase } from '@/shared/core/useCase';
 import { Member } from '../../dtos/memberDTO';
 import { DisplayableMember } from '../../dtos/displayableMemberDTO';
-import { ShowMemberDetailRepository } from './showMemberDetailRepository';
+import { DataFilter } from '@/modules/auth/shared/dataFilter';
+import { PrismaClient } from '@prisma/client';
+import { MemberOrm } from '@/modules/auth/shared/createOso';
+import { MemberNotFoundError } from '../errors/memberNotFoundError';
 
 export type ShowMemberDetailRequest = {
   memberId: string;
@@ -19,21 +22,29 @@ export class ShowMemberDetailService
 {
   constructor(
     private readonly authorizer: Authorizer,
-    private readonly repository: ShowMemberDetailRepository
+    private readonly dataFilter: DataFilter,
+    private readonly prisma: PrismaClient
   ) {}
 
   async execute(
     req: ShowMemberDetailRequest
   ): Promise<Result<ShowMemberDetailResponse>> {
-    const memberOrError = await this.repository.queryMember(
+    await this.dataFilter.authorizedQuery(
       this.authorizer.currentUser,
-      req.memberId
+      MEMBER_ACTIONS.READ,
+      MemberOrm
     );
-    if (memberOrError.isFailure) {
-      return Result.fail(memberOrError.error);
+
+    const record = await this.prisma.member.findUnique({
+      where: { id: req.memberId },
+      include: { department: true },
+    });
+
+    if (!record) {
+      return Result.fail(new MemberNotFoundError(req.memberId));
     }
 
-    const member = memberOrError.getValue();
+    const member = Member.createFromOrmModel(record);
     const authorizedFieldsOrError =
       await this.authorizer.authorizedFieldsForUser<Member>(
         MEMBER_ACTIONS.READ,

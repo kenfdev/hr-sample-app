@@ -11,15 +11,8 @@ import {
   UpdatePayload,
 } from '../../useCases/editMemberDetail/editMemberDetailRepository';
 import { MemberNotFoundError } from '../../useCases/errors/memberNotFoundError';
-import { ListAllMembersRepository } from '../../useCases/listAllMembers/listAllMembersRepository';
-import { ShowMemberDetailRepository } from '../../useCases/showMemberDetail/showMemberDetailRepository';
 
-export class PrismaMemberRepository
-  implements
-    ShowMemberDetailRepository,
-    EditMemberDetailRepository,
-    ListAllMembersRepository
-{
+export class PrismaMemberRepository implements EditMemberDetailRepository {
   private readonly prisma: PrismaClient;
   constructor(private readonly dataFilter: DataFilter, prisma: PrismaClient) {
     this.prisma = prisma;
@@ -67,42 +60,5 @@ export class PrismaMemberRepository
       record.pr
     );
     return Result.ok(member);
-  }
-
-  async queryMembers(user: User): Promise<Result<Member[]>> {
-    const query = await this.dataFilter.authorizedQuery(
-      user,
-      MEMBER_ACTIONS.READ,
-      MemberOrm
-    );
-
-    const records = await this.prisma.member.findMany({
-      where: query,
-      include: {
-        department: true,
-      },
-    });
-
-    const members = records.map((member) => {
-      return new Member(
-        member.id,
-        member.avatar,
-        member.firstName,
-        member.lastName,
-        member.age,
-        member.salary,
-        new Department(
-          member.department.id,
-          member.department.name,
-          member.department.managerMemberId
-        ),
-        member.joinedAt,
-        member.phoneNumber,
-        member.email,
-        member.pr
-      );
-    });
-
-    return Result.ok(members);
   }
 }
