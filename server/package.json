@@ -14,7 +14,8 @@
     "db:seed": "prisma db seed"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "schema": "src/shared/infra/database/prisma/schema.prisma",
+    "seed": "ts-node src/shared/infra/database/prisma/seed.ts"
   },
   "author": "",
   "license": "ISC",
