@@ -1,4 +1,3 @@
-import { Authorizer } from '@/auth/shared/authorizer';
 import express, { Application } from 'express';
 
 import 'reflect-metadata';
@@ -9,21 +8,21 @@ import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { createContext } from './context';
 import { createServer } from '@graphql-yoga/node';
 import { createResolvers } from './resolvers';
-import { DataFilter } from '@/auth/shared/dataFilter';
-import { GetLoggedInUserInfoSqliteRepository } from '@/users/get-logged-in-user-info/repository/getLoggedInUserInfoSqliteRepository';
-import { GetLoggedInUserInfoService } from '@/users/get-logged-in-user-info/getLoggedInUserInfoService';
-import { ListAllMembersSqliteRepository } from '@/members/list-all-members/repository/listAllMembersSqliteRepository';
-import { ListAllMembersService } from '@/members/list-all-members/listAllMembersService';
-import { ShowMemberDetailService } from '@/members/show-member-detail/showMemberDetailService';
-import { EditMemberDetailService } from '@/members/edit-member-detail/editMemberDetailService';
+import { DataFilter } from '@/modules/auth/shared/dataFilter';
+import { Authorizer } from '@/modules/auth/shared/authorizer';
+import { GetLoggedInUserInfoSqliteRepository } from '@/modules/users/useCases/getLoggedInUserInfo/repository/getLoggedInUserInfoSqliteRepository';
+import { GetLoggedInUserInfoService } from '@/modules/users/useCases/getLoggedInUserInfo/getLoggedInUserInfoService';
+import { PrismaMemberRepository } from '@/modules/members/infra/repos/prismaMemberRepository';
+import { ListAllMembersService } from '@/modules/members/useCases/listAllMembers/listAllMembersService';
+import { ShowMemberDetailService } from '@/modules/members/useCases/showMemberDetail/showMemberDetailService';
+import { EditMemberDetailService } from '@/modules/members/useCases/editMemberDetail/editMemberDetailService';
 import {
   createCoreOso,
   createSqliteDataFilterOso,
-} from '@/auth/shared/createOso';
-import { OsoDataFilter } from '@/auth/shared/repository/osoDataFilter';
-import { createCheckLoggedInMiddleware } from '@/auth/check-logged-in/checkLoggedInMiddleware';
-import { PrismaMemberRepository } from '@/members/infra/repos/prismaMemberRepository';
-import { PrismaUserRepository } from '@/auth/shared/repository/prismaUserRepository';
+} from '@/modules/auth/shared/createOso';
+import { PrismaUserRepository } from '@/modules/users/infra/repos/prismaUserRepository';
+import { OsoDataFilter } from '@/modules/auth/shared/repository/osoDataFilter';
+import { createCheckLoggedInMiddleware } from '@/modules/auth/shared/checkLoggedInMiddleware';
 
 export const prisma = new PrismaClient();
 
@@ -47,15 +46,12 @@ const createUseCases = ({
     getLoggedInUserInfoRepository
   );
 
-  const listAllMembersRepository = new ListAllMembersSqliteRepository(
-    dataFilter,
-    prisma
-  );
+  const prismaMemberRepository = new PrismaMemberRepository(dataFilter, prisma);
+
   const listAllMembersService = new ListAllMembersService(
     authorizer,
-    listAllMembersRepository
+    prismaMemberRepository
   );
-  const prismaMemberRepository = new PrismaMemberRepository(dataFilter, prisma);
   const showMemberDetailService = new ShowMemberDetailService(
     authorizer,
     prismaMemberRepository
@@ -75,11 +71,12 @@ const createUseCases = ({
 
 export async function startServer() {
   const oso = await createCoreOso();
-  const prismaUserRepository = new PrismaUserRepository(prisma);
-  const authorizer = new Authorizer(prismaUserRepository, oso);
 
   const dataFilterOso = await createSqliteDataFilterOso();
   const dataFilter = new OsoDataFilter(dataFilterOso);
+
+  const prismaUserRepository = new PrismaUserRepository(dataFilter, prisma);
+  const authorizer = new Authorizer(prismaUserRepository, oso);
 
   // express
   const app: Application = express();

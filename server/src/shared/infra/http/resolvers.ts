@@ -1,7 +1,7 @@
-import { EditMemberDetailService } from '@/members/edit-member-detail/editMemberDetailService';
-import { ListAllMembersService } from '@/members/list-all-members/listAllMembersService';
-import { ShowMemberDetailService } from '@/members/show-member-detail/showMemberDetailService';
-import { GetLoggedInUserInfoService } from '@/users/get-logged-in-user-info/getLoggedInUserInfoService';
+import { EditMemberDetailService } from '@/modules/members/useCases/editMemberDetail/editMemberDetailService';
+import { ListAllMembersService } from '@/modules/members/useCases/listAllMembers/listAllMembersService';
+import { ShowMemberDetailService } from '@/modules/members/useCases/showMemberDetail/showMemberDetailService';
+import { GetLoggedInUserInfoService } from '@/modules/users/useCases/getLoggedInUserInfo/getLoggedInUserInfoService';
 import { Resolvers } from './generated/resolver-types';
 
 type Dependencies = {
