@@ -1,6 +1,7 @@
 import { Authorizer } from '@/modules/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/modules/auth/shared/constants/actions';
-import { NotAuthorizedError } from '@/modules/auth/shared/errors/not-authorized-error';
+import { Result } from '@/shared/core/result';
+import { UseCase } from '@/shared/core/useCase';
 import { Member } from '../../domain/member';
 import { DisplayableMember } from '../../dtos/displayableMember';
 import { ListAllMembersRepository } from './listAllMembersRepository';
@@ -10,53 +11,60 @@ export type ListAllMembersResponse = {
   members: Partial<Member>[];
 };
 
-export class ListAllMembersService {
+export class ListAllMembersService
+  implements UseCase<ListAllMembersRequest, Result<ListAllMembersResponse>>
+{
   constructor(
     private readonly authorizer: Authorizer,
     private readonly repository: ListAllMembersRepository
   ) {}
 
-  async execute(): Promise<ListAllMembersResponse> {
-    try {
-      const members = await this.repository.queryMembers(
-        this.authorizer.currentUser
-      );
-      const authorizedMembers: DisplayableMember[] = [];
-      for (const member of members) {
-        const authorizedFields =
-          await this.authorizer.authorizedFieldsForUser<Member>(
-            MEMBER_ACTIONS.READ,
-            member
-          );
+  async execute(): Promise<Result<ListAllMembersResponse>> {
+    const membersOrError = await this.repository.queryMembers(
+      this.authorizer.currentUser
+    );
+    if (membersOrError.isFailure) {
+      return Result.fail(membersOrError.error);
+    }
 
-        const authorizedMember: DisplayableMember = {
-          ...member.createObjectWithAuthorizedFields(authorizedFields),
-          editable: false,
-          isLoggedInUser: false,
-        };
-
-        const allowedActions = await this.authorizer.authorizedActionsForUser(
+    const authorizedMembers: DisplayableMember[] = [];
+    for (const member of membersOrError.getValue()) {
+      const authorizedFieldsOrError =
+        await this.authorizer.authorizedFieldsForUser<Member>(
+          MEMBER_ACTIONS.READ,
           member
         );
-        if (allowedActions.has(MEMBER_ACTIONS.UPDATE)) {
-          authorizedMember.editable = true;
-        }
-
-        if (member.id === this.authorizer.currentUser.memberInfo.id) {
-          authorizedMember.isLoggedInUser = true;
-        }
-
-        authorizedMembers.push(authorizedMember);
+      if (authorizedFieldsOrError.isFailure) {
+        return Result.fail(authorizedFieldsOrError.error);
       }
 
-      return {
-        members: authorizedMembers,
+      const authorizedMember: DisplayableMember = {
+        ...member.createObjectWithAuthorizedFields(
+          authorizedFieldsOrError.getValue()
+        ),
+        editable: false,
+        isLoggedInUser: false,
       };
-    } catch (error) {
-      if (error instanceof NotAuthorizedError) {
-        return { members: [] };
+
+      const allowedActionsOrError =
+        await this.authorizer.authorizedActionsForUser(member);
+      if (allowedActionsOrError.isFailure) {
+        return Result.fail(allowedActionsOrError.error);
       }
-      throw error;
+
+      if (allowedActionsOrError.getValue().has(MEMBER_ACTIONS.UPDATE)) {
+        authorizedMember.editable = true;
+      }
+
+      if (member.id === this.authorizer.currentUser.memberInfo.id) {
+        authorizedMember.isLoggedInUser = true;
+      }
+
+      authorizedMembers.push(authorizedMember);
     }
+
+    return Result.ok({
+      members: authorizedMembers,
+    });
   }
 }

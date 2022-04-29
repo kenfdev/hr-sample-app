@@ -1,5 +1,7 @@
 import { Authorizer } from '@/modules/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/modules/auth/shared/constants/actions';
+import { Result } from '@/shared/core/result';
+import { UseCase } from '@/shared/core/useCase';
 import { Member } from '../../domain/member';
 import { DisplayableMember } from '../../dtos/displayableMember';
 import { ShowMemberDetailRepository } from './showMemberDetailRepository';
@@ -12,7 +14,9 @@ export type ShowMemberDetailResponse = {
   member: DisplayableMember;
 };
 
-export class ShowMemberDetailService {
+export class ShowMemberDetailService
+  implements UseCase<ShowMemberDetailRequest, Result<ShowMemberDetailResponse>>
+{
   constructor(
     private readonly authorizer: Authorizer,
     private readonly repository: ShowMemberDetailRepository
@@ -20,51 +24,62 @@ export class ShowMemberDetailService {
 
   async execute(
     req: ShowMemberDetailRequest
-  ): Promise<ShowMemberDetailResponse> {
-    const member = await this.repository.queryMember(
+  ): Promise<Result<ShowMemberDetailResponse>> {
+    const memberOrError = await this.repository.queryMember(
       this.authorizer.currentUser,
       req.memberId
     );
+    if (memberOrError.isFailure) {
+      return Result.fail(memberOrError.error);
+    }
 
-    try {
-      const authorizedFields =
-        await this.authorizer.authorizedFieldsForUser<Member>(
-          MEMBER_ACTIONS.READ,
-          member
-        );
-      const authorizedMember: DisplayableMember = {
-        ...member.createObjectWithAuthorizedFields(authorizedFields),
-        editable: false,
-        isLoggedInUser: false,
-      };
-
-      const allowedActions = await this.authorizer.authorizedActionsForUser(
+    const member = memberOrError.getValue();
+    const authorizedFieldsOrError =
+      await this.authorizer.authorizedFieldsForUser<Member>(
+        MEMBER_ACTIONS.READ,
         member
       );
 
-      let authorizedFieldsToUpdate: string[] = [];
-      if (allowedActions.has(MEMBER_ACTIONS.UPDATE)) {
-        authorizedMember.editable = true;
+    const authorizedMemberOrError: DisplayableMember = {
+      ...member.createObjectWithAuthorizedFields(
+        authorizedFieldsOrError.getValue()
+      ),
+      editable: false,
+      isLoggedInUser: false,
+    };
 
-        const fields = await this.authorizer.authorizedFieldsForUser<Member>(
+    const allowedActionsOrError =
+      await this.authorizer.authorizedActionsForUser(member);
+    if (allowedActionsOrError.isFailure) {
+      return Result.fail(allowedActionsOrError.error);
+    }
+
+    let authorizedFieldsToUpdate: string[] = [];
+    if (allowedActionsOrError.getValue().has(MEMBER_ACTIONS.UPDATE)) {
+      authorizedMemberOrError.editable = true;
+
+      const fieldsOrError =
+        await this.authorizer.authorizedFieldsForUser<Member>(
           MEMBER_ACTIONS.UPDATE,
           member
         );
-        // FIXME: exclude readonly fields such as id, joinedAt
-        authorizedFieldsToUpdate = Array.from(fields.values()).map((f) => f);
+      if (fieldsOrError.isFailure) {
+        return Result.fail(fieldsOrError.error);
       }
 
-      if (member.id === this.authorizer.currentUser.memberInfo.id) {
-        authorizedMember.isLoggedInUser = true;
-      }
+      const fields = fieldsOrError.getValue();
 
-      return {
-        editableFields: authorizedFieldsToUpdate,
-        member: authorizedMember,
-      };
-    } catch (error) {
-      // TODO: return 404 NOT FOUND
-      throw error;
+      // FIXME: exclude readonly fields such as id, joinedAt
+      authorizedFieldsToUpdate = Array.from(fields.values()).map((f) => f);
     }
+
+    if (member.id === this.authorizer.currentUser.memberInfo.id) {
+      authorizedMemberOrError.isLoggedInUser = true;
+    }
+
+    return Result.ok({
+      editableFields: authorizedFieldsToUpdate,
+      member: authorizedMemberOrError,
+    });
   }
 }

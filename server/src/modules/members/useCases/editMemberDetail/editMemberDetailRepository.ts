@@ -1,4 +1,5 @@
 import { User } from '@/modules/users/domain/user';
+import { Result } from '@/shared/core/result';
 import { Member } from '../../domain/member';
 
 export type UpdatePayload = {
@@ -13,10 +14,10 @@ export type UpdatePayload = {
 };
 
 export interface EditMemberDetailRepository {
-  queryMember(user: User, memberId: string): Promise<Member>;
+  queryMember(user: User, memberId: string): Promise<Result<Member>>;
   updateMember(
     user: User,
     memberId: string,
     payload: UpdatePayload
-  ): Promise<void>;
+  ): Promise<Result<void>>;
 }

@@ -10,7 +10,6 @@ import { createServer } from '@graphql-yoga/node';
 import { createResolvers } from './resolvers';
 import { DataFilter } from '@/modules/auth/shared/dataFilter';
 import { Authorizer } from '@/modules/auth/shared/authorizer';
-import { GetLoggedInUserInfoSqliteRepository } from '@/modules/users/useCases/getLoggedInUserInfo/repository/getLoggedInUserInfoSqliteRepository';
 import { GetLoggedInUserInfoService } from '@/modules/users/useCases/getLoggedInUserInfo/getLoggedInUserInfoService';
 import { PrismaMemberRepository } from '@/modules/members/infra/repos/prismaMemberRepository';
 import { ListAllMembersService } from '@/modules/members/useCases/listAllMembers/listAllMembersService';
@@ -30,20 +29,18 @@ type UseCaseDependencies = {
   dataFilter: DataFilter;
   authorizer: Authorizer;
   prisma: PrismaClient;
+  prismaUserRepository: PrismaUserRepository;
 };
 
 const createUseCases = ({
   dataFilter,
   authorizer,
   prisma,
+  prismaUserRepository,
 }: UseCaseDependencies) => {
-  const getLoggedInUserInfoRepository = new GetLoggedInUserInfoSqliteRepository(
-    dataFilter,
-    prisma
-  );
   const getLoggedInUserInfoService = new GetLoggedInUserInfoService(
     authorizer,
-    getLoggedInUserInfoRepository
+    prismaUserRepository
   );
 
   const prismaMemberRepository = new PrismaMemberRepository(dataFilter, prisma);
@@ -87,7 +84,12 @@ export async function startServer() {
     loaders: [new GraphQLFileLoader()],
   });
 
-  const useCases = createUseCases({ dataFilter, authorizer, prisma });
+  const useCases = createUseCases({
+    dataFilter,
+    authorizer,
+    prisma,
+    prismaUserRepository,
+  });
   const resolvers = createResolvers(useCases);
   const graphQLServer = createServer({
     schema: {

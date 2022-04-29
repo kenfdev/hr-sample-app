@@ -4,6 +4,7 @@ import { DataFilter } from '@/modules/auth/shared/dataFilter';
 import { UserNotFoundError } from '@/modules/auth/shared/errors/userNotFoundError';
 import { Department } from '@/modules/members/domain/department';
 import { Member } from '@/modules/members/domain/member';
+import { Result } from '@/shared/core/result';
 import { PrismaClient } from '@prisma/client';
 import { User } from '../../domain/user';
 import {
@@ -17,24 +18,28 @@ export class PrismaUserRepository implements GetLoggedInUserInfoRepository {
     private readonly prisma: PrismaClient
   ) {}
 
-  async queryUserInfo(user: User): Promise<UserInfo> {
-    const query = await this.dataFilter.authorizedQuery(
-      user,
-      USER_MENU_ITEM_ACTIONS.READ,
-      UserMenuItemOrm
-    );
+  async queryUserInfo(user: User): Promise<Result<UserInfo>> {
+    try {
+      const query = await this.dataFilter.authorizedQuery(
+        user,
+        USER_MENU_ITEM_ACTIONS.READ,
+        UserMenuItemOrm
+      );
 
-    const menuItems = await this.prisma.userMenuItem.findMany({
-      select: {
-        name: true,
-      },
-      where: query,
-      orderBy: { order: 'asc' },
-    });
+      const menuItems = await this.prisma.userMenuItem.findMany({
+        select: {
+          name: true,
+        },
+        where: query,
+        orderBy: { order: 'asc' },
+      });
 
-    return {
-      userMenu: menuItems,
-    };
+      return Result.ok({
+        userMenu: menuItems,
+      });
+    } catch (err: any) {
+      return Result.fail(err);
+    }
   }
 
   async getUser(userId: string): Promise<User> {

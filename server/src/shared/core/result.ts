@@ -1,7 +1,7 @@
 export class Result<T> {
   public isSuccess: boolean;
   public isFailure: boolean;
-  public error?: Error | null;
+  public error!: Error;
   private _value?: T;
 
   private constructor(isSuccess: boolean, error?: Error | null, value?: T) {
@@ -16,7 +16,9 @@ export class Result<T> {
 
     this.isSuccess = isSuccess;
     this.isFailure = !isSuccess;
-    this.error = error;
+    if (error) {
+      this.error = error;
+    }
     this._value = value;
 
     Object.freeze(this);

@@ -20,60 +20,61 @@ export const createResolvers = ({
   return {
     Query: {
       userInfo: async () => {
-        try {
-          const result = await getLoggedInUserInfoService.execute();
-          return result;
-        } catch (err) {
-          console.error(err);
-          throw err;
+        const resultOrError = await getLoggedInUserInfoService.execute();
+        if (resultOrError.isFailure) {
+          console.error(resultOrError.error);
+          // TODO: error handling
+          return;
         }
+        return resultOrError.getValue();
       },
       listAllMembers: async () => {
-        try {
-          const result = await listAllMembersService.execute();
-          return result;
-        } catch (err) {
-          console.error(err);
-          throw err;
+        const resultOrError = await listAllMembersService.execute();
+        if (resultOrError.isFailure) {
+          console.error(resultOrError.error);
+          // TODO: error handling
+          return;
         }
+        return resultOrError.getValue();
       },
       showMemberDetail: async (_, { id }) => {
-        try {
-          const result = await showMemberDetailService.execute({
-            memberId: id,
-          });
-          return result;
-        } catch (err) {
-          console.error(err);
-          throw err;
+        const resultOrError = await showMemberDetailService.execute({
+          memberId: id,
+        });
+        if (resultOrError.isFailure) {
+          console.error(resultOrError.error);
+          // TODO:
+          return;
         }
+        return resultOrError.getValue();
       },
     },
     Mutation: {
       editMemberDetail: async (_, { input }) => {
-        try {
-          const { id: memberId, ...payload } = input;
+        const { id: memberId, ...payload } = input;
 
-          const result = await editMemberDetailService.execute({
-            memberId,
-            payload: {
-              ...(payload.age && { age: payload.age }),
-              ...(payload.departmentId && {
-                departmentId: payload.departmentId,
-              }),
-              ...(payload.email && { email: payload.email }),
-              ...(payload.firstName && { firstName: payload.firstName }),
-              ...(payload.lastName && { lastName: payload.lastName }),
-              ...(payload.phoneNumber && { phoneNumber: payload.phoneNumber }),
-              ...(payload.pr && { pr: payload.pr }),
-              ...(payload.salary && { salary: payload.salary }),
-            },
-          });
-          return result;
-        } catch (err) {
-          console.error(err);
-          throw err;
+        const resultOrError = await editMemberDetailService.execute({
+          memberId,
+          payload: {
+            ...(payload.age && { age: payload.age }),
+            ...(payload.departmentId && {
+              departmentId: payload.departmentId,
+            }),
+            ...(payload.email && { email: payload.email }),
+            ...(payload.firstName && { firstName: payload.firstName }),
+            ...(payload.lastName && { lastName: payload.lastName }),
+            ...(payload.phoneNumber && { phoneNumber: payload.phoneNumber }),
+            ...(payload.pr && { pr: payload.pr }),
+            ...(payload.salary && { salary: payload.salary }),
+          },
+        });
+        if (resultOrError.isFailure) {
+          console.error(resultOrError.error);
+          // TODO: error handling
+          return;
         }
+
+        return resultOrError.getValue();
       },
     },
   };

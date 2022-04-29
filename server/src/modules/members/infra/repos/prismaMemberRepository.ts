@@ -2,6 +2,7 @@ import { MEMBER_ACTIONS } from '@/modules/auth/shared/constants/actions';
 import { MemberOrm } from '@/modules/auth/shared/createOso';
 import { DataFilter } from '@/modules/auth/shared/dataFilter';
 import { User } from '@/modules/users/domain/user';
+import { Result } from '@/shared/core/result';
 import { PrismaClient } from '@prisma/client';
 import { Department } from '../../domain/department';
 import { Member } from '../../domain/member';
@@ -28,13 +29,15 @@ export class PrismaMemberRepository
     user: User,
     memberId: string,
     payload: UpdatePayload
-  ): Promise<void> {
+  ): Promise<Result<void>> {
     await this.dataFilter.authorizedQuery(user, MEMBER_ACTIONS.READ, MemberOrm);
 
     await this.prisma.member.update({ where: { id: memberId }, data: payload });
+
+    return Result.ok();
   }
 
-  async queryMember(user: User, memberId: string): Promise<Member> {
+  async queryMember(user: User, memberId: string): Promise<Result<Member>> {
     await this.dataFilter.authorizedQuery(user, MEMBER_ACTIONS.READ, MemberOrm);
 
     const record = await this.prisma.member.findUnique({
@@ -46,7 +49,7 @@ export class PrismaMemberRepository
       throw new MemberNotFoundError(memberId);
     }
 
-    return new Member(
+    const member = new Member(
       record.id,
       record.avatar,
       record.firstName,
@@ -63,9 +66,10 @@ export class PrismaMemberRepository
       record.email,
       record.pr
     );
+    return Result.ok(member);
   }
 
-  async queryMembers(user: User): Promise<Member[]> {
+  async queryMembers(user: User): Promise<Result<Member[]>> {
     const query = await this.dataFilter.authorizedQuery(
       user,
       MEMBER_ACTIONS.READ,
@@ -79,7 +83,7 @@ export class PrismaMemberRepository
       },
     });
 
-    return records.map((member) => {
+    const members = records.map((member) => {
       return new Member(
         member.id,
         member.avatar,
@@ -98,5 +102,7 @@ export class PrismaMemberRepository
         member.pr
       );
     });
+
+    return Result.ok(members);
   }
 }

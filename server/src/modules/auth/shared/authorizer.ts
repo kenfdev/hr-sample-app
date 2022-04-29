@@ -1,6 +1,7 @@
 import { User } from '@/modules/users/domain/user';
 import { PrismaUserRepository } from '@/modules/users/infra/repos/prismaUserRepository';
 import { InvalidOperationError } from '@/shared/core/errors/invalidOperationError';
+import { Result } from '@/shared/core/result';
 import { Oso } from 'oso';
 
 export class Authorizer {
@@ -30,12 +31,27 @@ export class Authorizer {
   async authorizedFieldsForUser<R>(
     action: any,
     resource: R
-  ): Promise<Set<keyof R>> {
-    return this.authorizedFields(this.currentUser, action, resource);
+  ): Promise<Result<Set<keyof R>>> {
+    try {
+      const fields = await this.authorizedFields(
+        this.currentUser,
+        action,
+        resource
+      );
+
+      return Result.ok(fields);
+    } catch (err: any) {
+      return Result.fail(err);
+    }
   }
 
-  async authorizedActionsForUser<R>(resource: R): Promise<Set<string>> {
-    return this.authorizedActions(this.currentUser, resource);
+  async authorizedActionsForUser<R>(resource: R): Promise<Result<Set<string>>> {
+    try {
+      const actions = await this.authorizedActions(this.currentUser, resource);
+      return Result.ok(actions);
+    } catch (err: any) {
+      return Result.fail(err);
+    }
   }
 
   private async authorizedFields<R>(actor: any, action: any, resource: R) {
