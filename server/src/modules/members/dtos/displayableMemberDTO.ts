@@ -1,4 +1,4 @@
-import { Member } from '../domain/member';
+import { Member } from './memberDTO';
 
 export type DisplayableMember = Partial<Member> & {
   editable: boolean;

@@ -7,10 +7,10 @@ import { Oso } from 'oso';
 import { Filter, Relation } from 'oso/dist/src/dataFiltering';
 import { PrimitivePropertyNames } from '@/shared/sharedTypes';
 import { prisma } from '@/shared/infra/http/app';
-import { Department } from '@/modules/members/domain/department';
-import { Member } from '@/modules/members/domain/member';
-import { UserMenuItem } from '@/modules/users/domain/userMenuItem';
-import { User } from '@/modules/users/domain/user';
+import { Department } from '@/modules/members/dtos/departmentDTO';
+import { Member } from '@/modules/members/dtos/memberDTO';
+import { UserMenuItem } from '@/modules/users/dtos/userMenuItemDTO';
+import { User } from '@/modules/users/dtos/userDTO';
 
 // FIXME: Since prisma objects are POJOs, we need to create classes
 // to pass to Oso by ourselves.

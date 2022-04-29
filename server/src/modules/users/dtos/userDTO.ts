@@ -1,4 +1,4 @@
-import { Member } from '@/modules/members/domain/member';
+import { Member } from '@/modules/members/dtos/memberDTO';
 
 export class User {
   constructor(

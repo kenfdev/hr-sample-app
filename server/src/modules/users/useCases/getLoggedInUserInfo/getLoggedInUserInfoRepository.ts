@@ -1,5 +1,5 @@
 import { Result } from '@/shared/core/result';
-import { User } from '../../domain/user';
+import { User } from '../../dtos/userDTO';
 
 export type UserInfo = {
   userMenu: { name: string }[];

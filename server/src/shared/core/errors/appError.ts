@@ -11,6 +11,7 @@ export abstract class AppError extends Error {
 export const ErrorCodes = {
   BAD_REQUEST: 'bad_request',
   INVALID_OPERATION: 'invalid_operation',
+  INVALID_ARGUMENT: 'invalid_argument',
   USER_NOT_FOUND: 'user_not_found',
   MEMBER_NOT_FOUND: 'member_not_found',
 } as const;

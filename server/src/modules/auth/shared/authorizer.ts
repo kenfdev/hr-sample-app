@@ -1,4 +1,4 @@
-import { User } from '@/modules/users/domain/user';
+import { User } from '@/modules/users/dtos/userDTO';
 import { PrismaUserRepository } from '@/modules/users/infra/repos/prismaUserRepository';
 import { InvalidOperationError } from '@/shared/core/errors/invalidOperationError';
 import { Result } from '@/shared/core/result';

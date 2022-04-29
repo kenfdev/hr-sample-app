@@ -1,5 +1,5 @@
 import { NonFunctionPropertyNames } from '@/shared/sharedTypes';
-import { Department } from './department';
+import { Department } from './departmentDTO';
 
 export class Member {
   static PUBLIC_FIELDS: NonFunctionPropertyNames<Member>[] = [

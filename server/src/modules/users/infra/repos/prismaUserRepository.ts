@@ -2,11 +2,11 @@ import { USER_MENU_ITEM_ACTIONS } from '@/modules/auth/shared/constants/actions'
 import { UserMenuItemOrm } from '@/modules/auth/shared/createOso';
 import { DataFilter } from '@/modules/auth/shared/dataFilter';
 import { UserNotFoundError } from '@/modules/auth/shared/errors/userNotFoundError';
-import { Department } from '@/modules/members/domain/department';
-import { Member } from '@/modules/members/domain/member';
+import { Department } from '@/modules/members/dtos/departmentDTO';
+import { Member } from '@/modules/members/dtos/memberDTO';
 import { Result } from '@/shared/core/result';
 import { PrismaClient } from '@prisma/client';
-import { User } from '../../domain/user';
+import { User } from '../../dtos/userDTO';
 import {
   GetLoggedInUserInfoRepository,
   UserInfo,

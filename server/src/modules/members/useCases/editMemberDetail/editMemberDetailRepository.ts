@@ -1,6 +1,6 @@
-import { User } from '@/modules/users/domain/user';
+import { User } from '@/modules/users/dtos/userDTO';
 import { Result } from '@/shared/core/result';
-import { Member } from '../../domain/member';
+import { Member } from '../../dtos/memberDTO';
 
 export type UpdatePayload = {
   firstName?: string;

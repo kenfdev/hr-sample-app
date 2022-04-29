@@ -2,7 +2,7 @@ import { Authorizer } from '@/modules/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/modules/auth/shared/constants/actions';
 import { Result } from '@/shared/core/result';
 import { UseCase } from '@/shared/core/useCase';
-import { Member } from '../../domain/member';
+import { Member } from '../../dtos/memberDTO';
 import { MemberNothingToUpdateError } from '../errors/memberNothingToUpdateError';
 import {
   EditMemberDetailRepository,
