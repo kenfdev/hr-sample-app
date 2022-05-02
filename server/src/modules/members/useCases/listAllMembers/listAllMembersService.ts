@@ -4,7 +4,6 @@ import { Result } from '@/shared/core/result';
 import { UseCase } from '@/shared/core/useCase';
 import { Member } from '../../dtos/memberDTO';
 import { DisplayableMember } from '../../dtos/displayableMemberDTO';
-import { DataFilter } from '@/modules/auth/shared/dataFilter';
 import { MemberOrm } from '@/modules/auth/shared/createOso';
 import { PrismaClient } from '@prisma/client';
 
@@ -18,13 +17,11 @@ export class ListAllMembersService
 {
   constructor(
     private readonly authorizer: Authorizer,
-    private readonly dataFilter: DataFilter,
     private readonly prisma: PrismaClient
   ) {}
 
   async execute(): Promise<Result<ListAllMembersResponse>> {
-    const query = await this.dataFilter.authorizedQuery(
-      this.authorizer.currentUser,
+    const query = await this.authorizer.authorizedQueryForUser(
       MEMBER_ACTIONS.READ,
       MemberOrm
     );

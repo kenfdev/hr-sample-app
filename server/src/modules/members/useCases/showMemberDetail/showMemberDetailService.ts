@@ -4,7 +4,6 @@ import { Result } from '@/shared/core/result';
 import { UseCase } from '@/shared/core/useCase';
 import { Member } from '../../dtos/memberDTO';
 import { DisplayableMember } from '../../dtos/displayableMemberDTO';
-import { DataFilter } from '@/modules/auth/shared/dataFilter';
 import { PrismaClient } from '@prisma/client';
 import { MemberOrm } from '@/modules/auth/shared/createOso';
 import { MemberNotFoundError } from '../errors/memberNotFoundError';
@@ -22,15 +21,13 @@ export class ShowMemberDetailService
 {
   constructor(
     private readonly authorizer: Authorizer,
-    private readonly dataFilter: DataFilter,
     private readonly prisma: PrismaClient
   ) {}
 
   async execute(
     req: ShowMemberDetailRequest
   ): Promise<Result<ShowMemberDetailResponse>> {
-    await this.dataFilter.authorizedQuery(
-      this.authorizer.currentUser,
+    await this.authorizer.authorizedQueryForUser(
       MEMBER_ACTIONS.READ,
       MemberOrm
     );

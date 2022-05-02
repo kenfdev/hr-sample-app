@@ -14,10 +14,6 @@ export type UpdatePayload = {
 };
 
 export interface EditMemberDetailRepository {
-  queryMember(user: User, memberId: string): Promise<Result<Member>>;
-  updateMember(
-    user: User,
-    memberId: string,
-    payload: UpdatePayload
-  ): Promise<Result<void>>;
+  queryMember(memberId: string): Promise<Result<Member>>;
+  updateMember(memberId: string, payload: UpdatePayload): Promise<Result<void>>;
 }

@@ -29,10 +29,7 @@ export class EditMemberDetailService
     memberId,
     payload,
   }: EditMemberDetailRequest): Promise<Result<EditMemberDetailResponse>> {
-    const memberOrError = await this.repository.queryMember(
-      this.authorizer.currentUser,
-      memberId
-    );
+    const memberOrError = await this.repository.queryMember(memberId);
     if (memberOrError.isFailure) {
       return Result.fail(memberOrError.error);
     }
@@ -66,11 +63,7 @@ export class EditMemberDetailService
       throw new MemberNothingToUpdateError(memberId);
     }
 
-    await this.repository.updateMember(
-      this.authorizer.currentUser,
-      memberId,
-      authorizedPayload
-    );
+    await this.repository.updateMember(memberId, authorizedPayload);
 
     return Result.ok({
       result: true,

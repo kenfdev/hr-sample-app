@@ -3,6 +3,7 @@ import { InvalidOperationError } from '@/shared/core/errors/invalidOperationErro
 import { Result } from '@/shared/core/result';
 import { PrismaClient } from '@prisma/client';
 import { Oso } from 'oso';
+import { NotAuthorizedError } from './errors/notAuthorizedError';
 import { UserNotFoundError } from './errors/userNotFoundError';
 
 export class Authorizer {
@@ -10,7 +11,8 @@ export class Authorizer {
 
   constructor(
     private readonly prisma: PrismaClient,
-    private readonly oso: Oso
+    private readonly coreOso: Oso,
+    private readonly filterOso: Oso
   ) {}
 
   get currentUser() {
@@ -44,7 +46,7 @@ export class Authorizer {
   }
 
   isAllowed(actor: any, action: any, resource: any): Promise<boolean> {
-    return this.oso.isAllowed(actor, action, resource);
+    return this.coreOso.isAllowed(actor, action, resource);
   }
 
   async authorizedFieldsForUser<R>(
@@ -73,13 +75,27 @@ export class Authorizer {
     }
   }
 
+  async authorizedQueryForUser(action: any, resource: any) {
+    const query = (await this.filterOso.authorizedQuery(
+      this.currentUser,
+      action,
+      resource
+    )) as any;
+    if (query === null) {
+      throw new NotAuthorizedError(
+        `no rules found: actor:${this.currentUser}, action:${action}, resource:${resource}`
+      );
+    }
+    return query;
+  }
+
   private async authorizedFields<R>(actor: any, action: any, resource: R) {
-    const set = await this.oso.authorizedFields(actor, action, resource);
+    const set = await this.coreOso.authorizedFields(actor, action, resource);
     return set as Set<keyof R>;
   }
 
   private async authorizedActions<R>(actor: any, resource: R) {
-    const set = await this.oso.authorizedActions(actor, resource);
+    const set = await this.coreOso.authorizedActions(actor, resource);
     return set as Set<string>;
   }
 }
