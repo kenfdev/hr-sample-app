@@ -1,4 +1,4 @@
-export class Department {
+export class DepartmentDTO {
   constructor(
     public id: string,
     public name: string,

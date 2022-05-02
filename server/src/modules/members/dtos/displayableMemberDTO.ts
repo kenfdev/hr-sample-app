@@ -1,6 +1,6 @@
-import { Member } from './memberDTO';
+import { MemberDTO } from './memberDTO';
 
-export type DisplayableMember = Partial<Member> & {
+export type DisplayableMember = Partial<MemberDTO> & {
   editable: boolean;
   isLoggedInUser: boolean;
 };

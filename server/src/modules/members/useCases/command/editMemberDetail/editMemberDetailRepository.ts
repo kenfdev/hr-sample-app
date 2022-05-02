@@ -1,5 +1,5 @@
 import { Result } from '@/shared/core/result';
-import { Member } from '../../../dtos/memberDTO';
+import { MemberDTO } from '../../../dtos/memberDTO';
 
 export type UpdatePayload = {
   firstName?: string;
@@ -13,6 +13,6 @@ export type UpdatePayload = {
 };
 
 export interface EditMemberDetailRepository {
-  queryMember(memberId: string): Promise<Result<Member>>;
+  queryMember(memberId: string): Promise<Result<MemberDTO>>;
   updateMember(memberId: string, payload: UpdatePayload): Promise<Result<void>>;
 }

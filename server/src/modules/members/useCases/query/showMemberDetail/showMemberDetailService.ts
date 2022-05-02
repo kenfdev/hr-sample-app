@@ -2,7 +2,7 @@ import { Authorizer } from '@/modules/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/modules/auth/shared/constants/actions';
 import { Result } from '@/shared/core/result';
 import { UseCase } from '@/shared/core/useCase';
-import { Member } from '../../../dtos/memberDTO';
+import { MemberDTO } from '../../../dtos/memberDTO';
 import { DisplayableMember } from '../../../dtos/displayableMemberDTO';
 import { PrismaClient } from '@prisma/client';
 import { MemberOrm } from '@/modules/auth/shared/createOso';
@@ -41,9 +41,9 @@ export class ShowMemberDetailService
       return Result.fail(new MemberNotFoundError(req.memberId));
     }
 
-    const member = Member.createFromOrmModel(record);
+    const member = MemberDTO.createFromOrmModel(record);
     const authorizedFieldsOrError =
-      await this.authorizer.authorizedFieldsForUser<Member>(
+      await this.authorizer.authorizedFieldsForUser<MemberDTO>(
         MEMBER_ACTIONS.READ,
         member
       );
@@ -67,7 +67,7 @@ export class ShowMemberDetailService
       authorizedMemberOrError.editable = true;
 
       const fieldsOrError =
-        await this.authorizer.authorizedFieldsForUser<Member>(
+        await this.authorizer.authorizedFieldsForUser<MemberDTO>(
           MEMBER_ACTIONS.UPDATE,
           member
         );

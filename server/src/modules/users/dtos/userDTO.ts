@@ -1,16 +1,16 @@
-import { Department } from '@/modules/members/dtos/departmentDTO';
-import { Member } from '@/modules/members/dtos/memberDTO';
+import { DepartmentDTO } from '@/modules/members/dtos/departmentDTO';
+import { MemberDTO } from '@/modules/members/dtos/memberDTO';
 import {
   User as PrismaUser,
   Member as PrismaMember,
   Department as PrismaDepartment,
 } from '@prisma/client';
 
-export class User {
+export class UserDTO {
   constructor(
     public id: string,
     public username: string,
-    public memberInfo: Member,
+    public memberInfo: MemberDTO,
     public isAdmin: boolean
   ) {}
 
@@ -18,18 +18,18 @@ export class User {
     userRecord: PrismaUser & {
       member: PrismaMember & { department: PrismaDepartment };
     }
-  ): User {
-    return new User(
+  ): UserDTO {
+    return new UserDTO(
       userRecord.id,
       userRecord.username,
-      new Member(
+      new MemberDTO(
         userRecord.member.id,
         userRecord.member.avatar,
         userRecord.member.firstName,
         userRecord.member.lastName,
         userRecord.member.age,
         userRecord.member.salary,
-        new Department(
+        new DepartmentDTO(
           userRecord.member.department.id,
           userRecord.member.department.name,
           userRecord.member.department.managerMemberId

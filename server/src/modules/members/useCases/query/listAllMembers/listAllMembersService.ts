@@ -2,14 +2,14 @@ import { Authorizer } from '@/modules/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/modules/auth/shared/constants/actions';
 import { Result } from '@/shared/core/result';
 import { UseCase } from '@/shared/core/useCase';
-import { Member } from '../../../dtos/memberDTO';
+import { MemberDTO } from '../../../dtos/memberDTO';
 import { DisplayableMember } from '../../../dtos/displayableMemberDTO';
 import { MemberOrm } from '@/modules/auth/shared/createOso';
 import { PrismaClient } from '@prisma/client';
 
 export type ListAllMembersRequest = {};
 export type ListAllMembersResponse = {
-  members: Partial<Member>[];
+  members: Partial<MemberDTO>[];
 };
 
 export class ListAllMembersService
@@ -34,9 +34,9 @@ export class ListAllMembersService
 
     const authorizedMembers: DisplayableMember[] = [];
     for (const memberModel of memberModels) {
-      const memberDto = Member.createFromOrmModel(memberModel);
+      const memberDto = MemberDTO.createFromOrmModel(memberModel);
       const authorizedFieldsOrError =
-        await this.authorizer.authorizedFieldsForUser<Member>(
+        await this.authorizer.authorizedFieldsForUser<MemberDTO>(
           MEMBER_ACTIONS.READ,
           memberDto
         );

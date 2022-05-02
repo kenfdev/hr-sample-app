@@ -7,17 +7,17 @@ import { Oso } from 'oso';
 import { Filter, Relation } from 'oso/dist/src/dataFiltering';
 import { PrimitivePropertyNames } from '@/shared/sharedTypes';
 import { prisma } from '@/shared/infra/http/app';
-import { Department } from '@/modules/members/dtos/departmentDTO';
-import { Member } from '@/modules/members/dtos/memberDTO';
+import { DepartmentDTO } from '@/modules/members/dtos/departmentDTO';
+import { MemberDTO } from '@/modules/members/dtos/memberDTO';
 import { UserMenuItem } from '@/modules/users/dtos/userMenuItemDTO';
-import { User } from '@/modules/users/dtos/userDTO';
+import { UserDTO } from '@/modules/users/dtos/userDTO';
 
 // FIXME: Since prisma objects are POJOs, we need to create classes
 // to pass to Oso by ourselves.
 // https://github.com/prisma/prisma/issues/5315
 export class DepartmentOrm {
   static entityFieldMap: Record<
-    PrimitivePropertyNames<Department>,
+    PrimitivePropertyNames<DepartmentDTO>,
     PrimitivePropertyNames<PrismaDepartment>
   > = {
     id: 'id',
@@ -31,7 +31,7 @@ export class DepartmentOrm {
 }
 export class MemberOrm {
   static entityFieldMap: Record<
-    PrimitivePropertyNames<Member>,
+    PrimitivePropertyNames<MemberDTO>,
     PrimitivePropertyNames<PrismaMember>
   > = {
     id: 'id',
@@ -122,7 +122,7 @@ export async function createSqliteDataFilterOso() {
   });
 
   // Since User will always be the LoggedInUser, we use the core entity class
-  osoDataFilter.registerClass(User, {
+  osoDataFilter.registerClass(UserDTO, {
     name: 'User',
   });
   osoDataFilter.registerClass(UserMenuItemOrm, {
@@ -165,10 +165,16 @@ export async function createSqliteDataFilterOso() {
 
 export async function createCoreOso() {
   const oso = new Oso();
-  oso.registerClass(User);
+  oso.registerClass(UserDTO, {
+    name: 'User',
+  });
   oso.registerClass(UserMenuItem);
-  oso.registerClass(Department);
-  oso.registerClass(Member);
+  oso.registerClass(DepartmentDTO, {
+    name: 'Department',
+  });
+  oso.registerClass(MemberDTO, {
+    name: 'Member',
+  });
   await oso.loadFiles(policyFiles);
 
   return oso;

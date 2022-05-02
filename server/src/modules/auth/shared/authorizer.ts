@@ -1,4 +1,4 @@
-import { User } from '@/modules/users/dtos/userDTO';
+import { UserDTO } from '@/modules/users/dtos/userDTO';
 import { InvalidOperationError } from '@/shared/core/errors/invalidOperationError';
 import { Result } from '@/shared/core/result';
 import { PrismaClient } from '@prisma/client';
@@ -7,7 +7,7 @@ import { NotAuthorizedError } from './errors/notAuthorizedError';
 import { UserNotFoundError } from './errors/userNotFoundError';
 
 export class Authorizer {
-  _currentUser?: User;
+  _currentUser?: UserDTO;
 
   constructor(
     private readonly prisma: PrismaClient,
@@ -40,7 +40,7 @@ export class Authorizer {
       throw new UserNotFoundError(userId);
     }
 
-    const user = User.createFromOrmModel(userRecord);
+    const user = UserDTO.createFromOrmModel(userRecord);
 
     this._currentUser = user;
   }

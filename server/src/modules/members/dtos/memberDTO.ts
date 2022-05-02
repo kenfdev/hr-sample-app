@@ -1,12 +1,12 @@
 import { NonFunctionPropertyNames } from '@/shared/sharedTypes';
-import { Department } from './departmentDTO';
+import { DepartmentDTO } from './departmentDTO';
 import {
   Member as PrismaMember,
   Department as PrismaDepartment,
 } from '@prisma/client';
 
-export class Member {
-  static PUBLIC_FIELDS: NonFunctionPropertyNames<Member>[] = [
+export class MemberDTO {
+  static PUBLIC_FIELDS: NonFunctionPropertyNames<MemberDTO>[] = [
     'id',
     'avatar',
     'firstName',
@@ -17,7 +17,7 @@ export class Member {
     'email',
     'pr',
   ];
-  static PRIVATE_FIELDS: NonFunctionPropertyNames<Member>[] = ['age', 'salary'];
+  static PRIVATE_FIELDS: NonFunctionPropertyNames<MemberDTO>[] = ['age', 'salary'];
 
   constructor(
     public id: string,
@@ -26,7 +26,7 @@ export class Member {
     public lastName: string,
     public age: number,
     public salary: number,
-    public department: Department,
+    public department: DepartmentDTO,
     public joinedAt: Date,
     public phoneNumber: string,
     public email: string,
@@ -35,12 +35,12 @@ export class Member {
 
   createObjectWithAuthorizedFields(
     this: any,
-    fields: Set<keyof Member>
-  ): Partial<Member> {
-    const authorizedMember: Partial<Member> = {};
+    fields: Set<keyof MemberDTO>
+  ): Partial<MemberDTO> {
+    const authorizedMember: Partial<MemberDTO> = {};
 
     for (const field of Array.from(fields.values())) {
-      authorizedMember[field as keyof Partial<Member>] = this[field];
+      authorizedMember[field as keyof Partial<MemberDTO>] = this[field];
     }
 
     return authorizedMember;
@@ -48,15 +48,15 @@ export class Member {
 
   static createFromOrmModel(
     member: PrismaMember & { department: PrismaDepartment }
-  ): Member {
-    return new Member(
+  ): MemberDTO {
+    return new MemberDTO(
       member.id,
       member.avatar,
       member.firstName,
       member.lastName,
       member.age,
       member.salary,
-      new Department(
+      new DepartmentDTO(
         member.department.id,
         member.department.name,
         member.department.managerMemberId

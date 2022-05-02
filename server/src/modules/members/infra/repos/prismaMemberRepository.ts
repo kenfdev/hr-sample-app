@@ -3,8 +3,8 @@ import { MEMBER_ACTIONS } from '@/modules/auth/shared/constants/actions';
 import { MemberOrm } from '@/modules/auth/shared/createOso';
 import { Result } from '@/shared/core/result';
 import { PrismaClient } from '@prisma/client';
-import { Department } from '../../dtos/departmentDTO';
-import { Member } from '../../dtos/memberDTO';
+import { DepartmentDTO } from '../../dtos/departmentDTO';
+import { MemberDTO } from '../../dtos/memberDTO';
 import {
   EditMemberDetailRepository,
   UpdatePayload,
@@ -31,7 +31,7 @@ export class PrismaMemberRepository implements EditMemberDetailRepository {
     return Result.ok();
   }
 
-  async queryMember(memberId: string): Promise<Result<Member>> {
+  async queryMember(memberId: string): Promise<Result<MemberDTO>> {
     await this.authorizer.authorizedQueryForUser(
       MEMBER_ACTIONS.READ,
       MemberOrm
@@ -46,14 +46,14 @@ export class PrismaMemberRepository implements EditMemberDetailRepository {
       throw new MemberNotFoundError(memberId);
     }
 
-    const member = new Member(
+    const member = new MemberDTO(
       record.id,
       record.avatar,
       record.firstName,
       record.lastName,
       record.age,
       record.salary,
-      new Department(
+      new DepartmentDTO(
         record.department.id,
         record.department.name,
         record.department.managerMemberId
