@@ -9,7 +9,7 @@ import { PrismaClient } from '@prisma/client';
 
 export type ListAllMembersRequest = {};
 export type ListAllMembersResponse = {
-  members: Partial<MemberDTO>[];
+  members: DisplayableMember[];
 };
 
 export class ListAllMembersService
@@ -32,7 +32,7 @@ export class ListAllMembersService
       },
     });
 
-    const authorizedMembers: DisplayableMember[] = [];
+    const displayableMembers: DisplayableMember[] = [];
     for (const memberModel of memberModels) {
       const memberDto = MemberDTO.createFromOrmModel(memberModel);
       const authorizedFieldsOrError =
@@ -44,33 +44,26 @@ export class ListAllMembersService
         return Result.fail(authorizedFieldsOrError.error);
       }
 
-      const authorizedMember: DisplayableMember = {
-        ...memberDto.createObjectWithAuthorizedFields(
-          authorizedFieldsOrError.getValue()
-        ),
-        editable: false,
-        isLoggedInUser: false,
-      };
-
       const allowedActionsOrError =
-        await this.authorizer.authorizedActionsForUser(memberModel);
+        await this.authorizer.authorizedActionsForUser(memberDto);
       if (allowedActionsOrError.isFailure) {
         return Result.fail(allowedActionsOrError.error);
       }
 
-      if (allowedActionsOrError.getValue().has(MEMBER_ACTIONS.UPDATE)) {
-        authorizedMember.editable = true;
-      }
+      const displayableMember: DisplayableMember = {
+        ...memberDto.createObjectWithAuthorizedFields(
+          authorizedFieldsOrError.getValue()
+        ),
+        editable: allowedActionsOrError.getValue().has(MEMBER_ACTIONS.UPDATE),
+        isLoggedInUser:
+          memberDto.id === this.authorizer.currentUser.memberInfo.id,
+      };
 
-      if (memberModel.id === this.authorizer.currentUser.memberInfo.id) {
-        authorizedMember.isLoggedInUser = true;
-      }
-
-      authorizedMembers.push(authorizedMember);
+      displayableMembers.push(displayableMember);
     }
 
     return Result.ok({
-      members: authorizedMembers,
+      members: displayableMembers,
     });
   }
 }

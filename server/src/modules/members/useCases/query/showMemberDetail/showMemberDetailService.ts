@@ -41,53 +41,45 @@ export class ShowMemberDetailService
       return Result.fail(new MemberNotFoundError(req.memberId));
     }
 
-    const member = MemberDTO.createFromOrmModel(record);
+    const memberDto = MemberDTO.createFromOrmModel(record);
     const authorizedFieldsOrError =
       await this.authorizer.authorizedFieldsForUser<MemberDTO>(
         MEMBER_ACTIONS.READ,
-        member
+        memberDto
       );
 
-    const authorizedMemberOrError: DisplayableMember = {
-      ...member.createObjectWithAuthorizedFields(
-        authorizedFieldsOrError.getValue()
-      ),
-      editable: false,
-      isLoggedInUser: false,
-    };
-
     const allowedActionsOrError =
-      await this.authorizer.authorizedActionsForUser(member);
+      await this.authorizer.authorizedActionsForUser(memberDto);
     if (allowedActionsOrError.isFailure) {
       return Result.fail(allowedActionsOrError.error);
     }
 
-    let authorizedFieldsToUpdate: string[] = [];
-    if (allowedActionsOrError.getValue().has(MEMBER_ACTIONS.UPDATE)) {
-      authorizedMemberOrError.editable = true;
+    const displayableMemberOrError: DisplayableMember = {
+      ...memberDto.createObjectWithAuthorizedFields(
+        authorizedFieldsOrError.getValue()
+      ),
+      editable: allowedActionsOrError.getValue().has(MEMBER_ACTIONS.UPDATE),
+      isLoggedInUser:
+        memberDto.id === this.authorizer.currentUser.memberInfo.id,
+    };
 
-      const fieldsOrError =
-        await this.authorizer.authorizedFieldsForUser<MemberDTO>(
-          MEMBER_ACTIONS.UPDATE,
-          member
-        );
-      if (fieldsOrError.isFailure) {
-        return Result.fail(fieldsOrError.error);
-      }
-
-      const fields = fieldsOrError.getValue();
-
-      // FIXME: exclude readonly fields such as id, joinedAt
-      authorizedFieldsToUpdate = Array.from(fields.values()).map((f) => f);
+    const editableFieldsOrError =
+      await this.authorizer.authorizedFieldsForUser<MemberDTO>(
+        MEMBER_ACTIONS.UPDATE,
+        memberDto
+      );
+    if (editableFieldsOrError.isFailure) {
+      return Result.fail(editableFieldsOrError.error);
     }
 
-    if (member.id === this.authorizer.currentUser.memberInfo.id) {
-      authorizedMemberOrError.isLoggedInUser = true;
-    }
+    // FIXME: exclude readonly fields such as id, joinedAt
+    const editableFields: string[] = Array.from(
+      editableFieldsOrError.getValue().values()
+    );
 
     return Result.ok({
-      editableFields: authorizedFieldsToUpdate,
-      member: authorizedMemberOrError,
+      editableFields: editableFields,
+      member: displayableMemberOrError,
     });
   }
 }
