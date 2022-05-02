@@ -1,7 +1,6 @@
 import { Authorizer } from '@/modules/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/modules/auth/shared/constants/actions';
 import { MemberOrm } from '@/modules/auth/shared/createOso';
-import { User } from '@/modules/users/dtos/userDTO';
 import { Result } from '@/shared/core/result';
 import { PrismaClient } from '@prisma/client';
 import { Department } from '../../dtos/departmentDTO';
@@ -9,7 +8,7 @@ import { Member } from '../../dtos/memberDTO';
 import {
   EditMemberDetailRepository,
   UpdatePayload,
-} from '../../useCases/editMemberDetail/editMemberDetailRepository';
+} from '../../useCases/command/editMemberDetail/editMemberDetailRepository';
 import { MemberNotFoundError } from '../../useCases/errors/memberNotFoundError';
 
 export class PrismaMemberRepository implements EditMemberDetailRepository {

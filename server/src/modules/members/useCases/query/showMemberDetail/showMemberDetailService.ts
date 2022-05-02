@@ -2,11 +2,11 @@ import { Authorizer } from '@/modules/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/modules/auth/shared/constants/actions';
 import { Result } from '@/shared/core/result';
 import { UseCase } from '@/shared/core/useCase';
-import { Member } from '../../dtos/memberDTO';
-import { DisplayableMember } from '../../dtos/displayableMemberDTO';
+import { Member } from '../../../dtos/memberDTO';
+import { DisplayableMember } from '../../../dtos/displayableMemberDTO';
 import { PrismaClient } from '@prisma/client';
 import { MemberOrm } from '@/modules/auth/shared/createOso';
-import { MemberNotFoundError } from '../errors/memberNotFoundError';
+import { MemberNotFoundError } from '../../errors/memberNotFoundError';
 
 export type ShowMemberDetailRequest = {
   memberId: string;

@@ -2,8 +2,8 @@ import { Authorizer } from '@/modules/auth/shared/authorizer';
 import { MEMBER_ACTIONS } from '@/modules/auth/shared/constants/actions';
 import { Result } from '@/shared/core/result';
 import { UseCase } from '@/shared/core/useCase';
-import { Member } from '../../dtos/memberDTO';
-import { DisplayableMember } from '../../dtos/displayableMemberDTO';
+import { Member } from '../../../dtos/memberDTO';
+import { DisplayableMember } from '../../../dtos/displayableMemberDTO';
 import { MemberOrm } from '@/modules/auth/shared/createOso';
 import { PrismaClient } from '@prisma/client';
 

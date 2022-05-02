@@ -9,11 +9,11 @@ import { createContext } from './context';
 import { createServer } from '@graphql-yoga/node';
 import { createResolvers } from './resolvers';
 import { Authorizer } from '@/modules/auth/shared/authorizer';
-import { GetLoggedInUserInfoService } from '@/modules/users/useCases/getLoggedInUserInfo/getLoggedInUserInfoService';
+import { GetLoggedInUserInfoService } from '@/modules/users/useCases/query/getLoggedInUserInfo/getLoggedInUserInfoService';
 import { PrismaMemberRepository } from '@/modules/members/infra/repos/prismaMemberRepository';
-import { ListAllMembersService } from '@/modules/members/useCases/listAllMembers/listAllMembersService';
-import { ShowMemberDetailService } from '@/modules/members/useCases/showMemberDetail/showMemberDetailService';
-import { EditMemberDetailService } from '@/modules/members/useCases/editMemberDetail/editMemberDetailService';
+import { ListAllMembersService } from '@/modules/members/useCases/query/listAllMembers/listAllMembersService';
+import { ShowMemberDetailService } from '@/modules/members/useCases/query/showMemberDetail/showMemberDetailService';
+import { EditMemberDetailService } from '@/modules/members/useCases/command/editMemberDetail/editMemberDetailService';
 import {
   createCoreOso,
   createSqliteDataFilterOso,
