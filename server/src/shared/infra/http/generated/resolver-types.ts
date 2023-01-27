@@ -1,11 +1,11 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { ListAllMembersResponse as ListAllMembersResponseModel } from '@/members/list-all-members/listAllMembersService';
-import { ShowMemberDetailResponse as ShowMemberDetailResponseModel } from '@/members/show-member-detail/showMemberDetailService';
-import { GetLoggedInUserInfoResponse as GetLoggedInUserInfoResponseModel, UserMenuItem as UserMenuItemModel } from '@/users/get-logged-in-user-info/getLoggedInUserInfoService';
-import { DisplayableMember as DisplayableMemberModel } from '@/members/shared/member';
-import { Department as DepartmentModel } from '@/members/shared/department';
-import { EditMemberDetailRequest as EditMemberDetailRequestModel, EditMemberDetailResponse as EditMemberDetailResponseModel } from '@/members/edit-member-detail/editMemberDetailService';
-import { Context } from '@/context';
+import { ListAllMembersResponse as ListAllMembersResponseModel } from '@/modules/members/useCases/query/listAllMembers/listAllMembersService';
+import { ShowMemberDetailResponse as ShowMemberDetailResponseModel } from '@/modules/members/useCases/query/showMemberDetail/showMemberDetailService';
+import { GetLoggedInUserInfoResponse as GetLoggedInUserInfoResponseModel, UserMenuItem as UserMenuItemModel } from '@/modules/users/useCases/query/getLoggedInUserInfo/getLoggedInUserInfoService';
+import { DisplayableMember as DisplayableMemberModel } from '@/modules/members/dtos/displayableMemberDTO';
+import { DepartmentDTO as DepartmentDTOModel } from '@/modules/members/dtos/departmentDTO';
+import { EditMemberDetailRequest as EditMemberDetailRequestModel, EditMemberDetailResponse as EditMemberDetailResponseModel } from '@/modules/members/useCases/command/editMemberDetail/editMemberDetailService';
+import { Context } from '@/shared/infra/http/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -70,7 +70,7 @@ export type Member = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  editMemberDetail: EditMemberDetailResponse;
+  editMemberDetail?: Maybe<EditMemberDetailResponse>;
 };
 
 
@@ -80,9 +80,9 @@ export type MutationEditMemberDetailArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  listAllMembers: ListAllMembersResponse;
-  showMemberDetail: ShowMemberDetailResponse;
-  userInfo: UserInfo;
+  listAllMembers?: Maybe<ListAllMembersResponse>;
+  showMemberDetail?: Maybe<ShowMemberDetailResponse>;
+  userInfo?: Maybe<UserInfo>;
 };
 
 
@@ -178,7 +178,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
-  Department: ResolverTypeWrapper<DepartmentModel>;
+  Department: ResolverTypeWrapper<DepartmentDTOModel>;
   EditMemberDetailInput: ResolverTypeWrapper<EditMemberDetailRequestModel>;
   EditMemberDetailResponse: ResolverTypeWrapper<EditMemberDetailResponseModel>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
@@ -197,7 +197,7 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
   DateTime: Scalars['DateTime'];
-  Department: DepartmentModel;
+  Department: DepartmentDTOModel;
   EditMemberDetailInput: EditMemberDetailRequestModel;
   EditMemberDetailResponse: EditMemberDetailResponseModel;
   ID: Scalars['ID'];
@@ -251,13 +251,13 @@ export type MemberResolvers<ContextType = Context, ParentType extends ResolversP
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  editMemberDetail?: Resolver<ResolversTypes['EditMemberDetailResponse'], ParentType, ContextType, RequireFields<MutationEditMemberDetailArgs, 'input'>>;
+  editMemberDetail?: Resolver<Maybe<ResolversTypes['EditMemberDetailResponse']>, ParentType, ContextType, RequireFields<MutationEditMemberDetailArgs, 'input'>>;
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  listAllMembers?: Resolver<ResolversTypes['ListAllMembersResponse'], ParentType, ContextType>;
-  showMemberDetail?: Resolver<ResolversTypes['ShowMemberDetailResponse'], ParentType, ContextType, RequireFields<QueryShowMemberDetailArgs, 'id'>>;
-  userInfo?: Resolver<ResolversTypes['UserInfo'], ParentType, ContextType>;
+  listAllMembers?: Resolver<Maybe<ResolversTypes['ListAllMembersResponse']>, ParentType, ContextType>;
+  showMemberDetail?: Resolver<Maybe<ResolversTypes['ShowMemberDetailResponse']>, ParentType, ContextType, RequireFields<QueryShowMemberDetailArgs, 'id'>>;
+  userInfo?: Resolver<Maybe<ResolversTypes['UserInfo']>, ParentType, ContextType>;
 };
 
 export type ShowMemberDetailResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShowMemberDetailResponse'] = ResolversParentTypes['ShowMemberDetailResponse']> = {

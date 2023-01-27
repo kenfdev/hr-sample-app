@@ -9,12 +9,12 @@ generates:
     config:
       mapperTypeSuffix: Model
       mappers:
-        ListAllMembersResponse: '@/members/list-all-members/listAllMembersService#ListAllMembersResponse'
-        ShowMemberDetailResponse: '@/members/show-member-detail/showMemberDetailService#ShowMemberDetailResponse'
-        UserInfo: '@/users/get-logged-in-user-info/getLoggedInUserInfoService#GetLoggedInUserInfoResponse'
-        UserMenuItem: '@/users/get-logged-in-user-info/getLoggedInUserInfoService#UserMenuItem'
-        Member: '@/members/shared/member#DisplayableMember'
-        Department: '@/members/shared/department#Department'
-        EditMemberDetailInput: '@/members/edit-member-detail/editMemberDetailService#EditMemberDetailRequest'
-        EditMemberDetailResponse: '@/members/edit-member-detail/editMemberDetailService#EditMemberDetailResponse'
-      contextType: '@/context#Context'
+        ListAllMembersResponse: '@/modules/members/useCases/query/listAllMembers/listAllMembersService#ListAllMembersResponse'
+        ShowMemberDetailResponse: '@/modules/members/useCases/query/showMemberDetail/showMemberDetailService#ShowMemberDetailResponse'
+        UserInfo: '@/modules/users/useCases/query/getLoggedInUserInfo/getLoggedInUserInfoService#GetLoggedInUserInfoResponse'
+        UserMenuItem: '@/modules/users/useCases/query/getLoggedInUserInfo/getLoggedInUserInfoService#UserMenuItem'
+        Member: '@/modules/members/dtos/displayableMemberDTO#DisplayableMember'
+        Department: '@/modules/members/dtos/departmentDTO#DepartmentDTO'
+        EditMemberDetailInput: '@/modules/members/useCases/command/editMemberDetail/editMemberDetailService#EditMemberDetailRequest'
+        EditMemberDetailResponse: '@/modules/members/useCases/command/editMemberDetail/editMemberDetailService#EditMemberDetailResponse'
+      contextType: '@/shared/infra/http/context#Context'

@@ -1,11 +1,11 @@
 type Query {
-  userInfo: UserInfo!
-  listAllMembers: ListAllMembersResponse!
-  showMemberDetail(id: ID!): ShowMemberDetailResponse!
+  userInfo: UserInfo
+  listAllMembers: ListAllMembersResponse
+  showMemberDetail(id: ID!): ShowMemberDetailResponse
 }
 
 type Mutation {
-  editMemberDetail(input: EditMemberDetailInput!): EditMemberDetailResponse!
+  editMemberDetail(input: EditMemberDetailInput!): EditMemberDetailResponse
 }
 
 input EditMemberDetailInput {

@@ -4,7 +4,7 @@ import { ShowMemberDetailService } from '@/modules/members/useCases/query/showMe
 import { GetLoggedInUserInfoService } from '@/modules/users/useCases/query/getLoggedInUserInfo/getLoggedInUserInfoService';
 import { Resolvers } from './generated/resolver-types';
 
-type Dependencies = {
+export type Dependencies = {
   getLoggedInUserInfoService: GetLoggedInUserInfoService;
   listAllMembersService: ListAllMembersService;
   showMemberDetailService: ShowMemberDetailService;
@@ -24,7 +24,7 @@ export const createResolvers = ({
         if (resultOrError.isFailure) {
           console.error(resultOrError.error);
           // TODO: error handling
-          return;
+          return null;
         }
         return resultOrError.getValue();
       },
@@ -33,7 +33,7 @@ export const createResolvers = ({
         if (resultOrError.isFailure) {
           console.error(resultOrError.error);
           // TODO: error handling
-          return;
+          return null;
         }
         return resultOrError.getValue();
       },
@@ -44,7 +44,7 @@ export const createResolvers = ({
         if (resultOrError.isFailure) {
           console.error(resultOrError.error);
           // TODO:
-          return;
+          return null;
         }
         return resultOrError.getValue();
       },
@@ -71,7 +71,7 @@ export const createResolvers = ({
         if (resultOrError.isFailure) {
           console.error(resultOrError.error);
           // TODO: error handling
-          return;
+          return null;
         }
 
         return resultOrError.getValue();

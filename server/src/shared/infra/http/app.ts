@@ -6,8 +6,8 @@ import { PrismaClient } from '@prisma/client';
 import { loadSchema } from '@graphql-tools/load';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { createContext } from './context';
-import { createServer } from '@graphql-yoga/node';
-import { createResolvers } from './resolvers';
+import { createYoga, createSchema } from 'graphql-yoga';
+import { createResolvers, Dependencies } from './resolvers';
 import { Authorizer } from '@/modules/auth/shared/authorizer';
 import { GetLoggedInUserInfoService } from '@/modules/users/useCases/query/getLoggedInUserInfo/getLoggedInUserInfoService';
 import { PrismaMemberRepository } from '@/modules/members/infra/repos/prismaMemberRepository';
@@ -63,24 +63,11 @@ export async function startServer() {
   const app: Application = express();
   app.use(express.json());
 
-  // // Build apollo-server-based graphql endpoint (trial)
-  const schema = await loadSchema('schema.graphql', {
-    loaders: [new GraphQLFileLoader()],
-  });
-
   const useCases = createUseCases({
     authorizer,
     prisma,
   });
-  const resolvers = createResolvers(useCases);
-  const graphQLServer = createServer({
-    schema: {
-      typeDefs: schema,
-      resolvers: resolvers,
-    },
-    context: createContext(),
-    plugins: [],
-  });
+  const graphQLServer = await createGraphQLServer(useCases);
 
   app.use('/graphql', createCheckLoggedInMiddleware(authorizer));
 
@@ -90,4 +77,22 @@ export async function startServer() {
   app.listen(port, function () {
     console.log(`App is listening on port ${port} !`);
   });
+}
+
+export async function createGraphQLServer(deps: Dependencies) {
+  const schema = await loadSchema('schema.graphql', {
+    loaders: [new GraphQLFileLoader()],
+  });
+
+  const resolvers = createResolvers(deps);
+  const graphQLServer = createYoga({
+    schema: createSchema({
+      typeDefs: schema,
+      resolvers: resolvers,
+    }),
+    context: createContext(),
+    plugins: [],
+  });
+
+  return graphQLServer;
 }
