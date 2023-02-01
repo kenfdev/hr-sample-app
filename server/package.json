@@ -28,7 +28,8 @@
     "graphql-yoga": "^3.4.0",
     "oso": "0.25.0",
     "reflect-metadata": "^0.1.13",
-    "sqlite3": "^5.0.2"
+    "sqlite3": "^5.0.2",
+    "zod": "^3.20.2"
   },
   "devDependencies": {
     "@faker-js/faker": "^6.2.0",
@@ -42,6 +43,7 @@
     "@types/node": "^16.11.27",
     "@types/supertest": "^2.0.11",
     "@types/yargs": "^17.0.4",
+    "fishery": "^2.2.2",
     "jest": "^27.3.1",
     "nodemon": "^2.0.14",
     "prisma": "^3.12.0",

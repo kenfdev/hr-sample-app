@@ -54,7 +54,7 @@ export class ShowMemberDetailService
       return Result.fail(allowedActionsOrError.error);
     }
 
-    const displayableMemberOrError: DisplayableMember = {
+    const displayableMember: DisplayableMember = {
       ...memberDto.createObjectWithAuthorizedFields(
         authorizedFieldsOrError.getValue()
       ),
@@ -79,7 +79,7 @@ export class ShowMemberDetailService
 
     return Result.ok({
       editableFields: editableFields,
-      member: displayableMemberOrError,
+      member: displayableMember,
     });
   }
 }

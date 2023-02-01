@@ -8,10 +8,22 @@ import {
   EditMemberDetailRepository,
   UpdatePayload,
 } from './editMemberDetailRepository';
+import z from 'zod';
+
+export const editMemberDetailPayloadSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  age: z.number().optional(),
+  salary: z.number().optional(),
+  departmentId: z.string().uuid().optional(),
+  phoneNumber: z.string().optional(),
+  email: z.string().email().optional(),
+  pr: z.string().optional(),
+});
 
 export type EditMemberDetailRequest = {
   memberId: string;
-  payload: UpdatePayload;
+  payload: z.infer<typeof editMemberDetailPayloadSchema>;
 };
 export type EditMemberDetailResponse = {
   result: boolean;

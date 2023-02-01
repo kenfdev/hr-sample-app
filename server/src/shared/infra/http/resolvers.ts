@@ -1,4 +1,7 @@
-import { EditMemberDetailService } from '@/modules/members/useCases/command/editMemberDetail/editMemberDetailService';
+import {
+  editMemberDetailPayloadSchema,
+  EditMemberDetailService,
+} from '@/modules/members/useCases/command/editMemberDetail/editMemberDetailService';
 import { ListAllMembersService } from '@/modules/members/useCases/query/listAllMembers/listAllMembersService';
 import { ShowMemberDetailService } from '@/modules/members/useCases/query/showMemberDetail/showMemberDetailService';
 import { GetLoggedInUserInfoService } from '@/modules/users/useCases/query/getLoggedInUserInfo/getLoggedInUserInfoService';
@@ -53,20 +56,16 @@ export const createResolvers = ({
       editMemberDetail: async (_, { input }) => {
         const { id: memberId, ...payload } = input;
 
+        const parsedPayload = editMemberDetailPayloadSchema.safeParse(payload);
+        if (!parsedPayload.success) {
+          // TODO: error handling
+          console.error(parsedPayload.error);
+          return null;
+        }
+
         const resultOrError = await editMemberDetailService.execute({
           memberId,
-          payload: {
-            ...(payload.age && { age: payload.age }),
-            ...(payload.departmentId && {
-              departmentId: payload.departmentId,
-            }),
-            ...(payload.email && { email: payload.email }),
-            ...(payload.firstName && { firstName: payload.firstName }),
-            ...(payload.lastName && { lastName: payload.lastName }),
-            ...(payload.phoneNumber && { phoneNumber: payload.phoneNumber }),
-            ...(payload.pr && { pr: payload.pr }),
-            ...(payload.salary && { salary: payload.salary }),
-          },
+          payload: parsedPayload.data,
         });
         if (resultOrError.isFailure) {
           console.error(resultOrError.error);
