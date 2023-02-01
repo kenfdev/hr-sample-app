@@ -1,5 +1,5 @@
+import { USERS } from '@/shared/infra/database/constants';
 import request from 'supertest';
-import { USERS } from '@/database/constants';
 
 export function authorizeRequest(
   req: request.Test,
